@@ -1,6 +1,8 @@
 import hashlib
-
 from phongmachapp.models import *
+
+def get_user_by_id(userId):
+    return User.query.filter(User.id==userId).first()
 
 
 def check_user_login(name, passwd):

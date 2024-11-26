@@ -1,13 +1,23 @@
 from flask import render_template, request, redirect, url_for, session
 from phongmachapp import app
-from dao.dao_user import add_new_user,check_user_login
+from dao.dao_user import add_new_user,check_user_login,get_user_by_id
 import hashlib
 from models import UserType,User
 
 
 @app.route('/')
 def index():
-    return render_template("index.html")
+    # kiem tra da dang nhap chua
+    if not session.get('logged_in'):
+        return render_template("index.html")
+
+    # lay ten dang nhap de hien thi
+    user_id= session.get('user_id')
+    user=get_user_by_id(user_id)
+
+
+
+    return render_template("index.html",user=user)
 
 
 @app.route('/login', methods=['GET', 'POST'])
