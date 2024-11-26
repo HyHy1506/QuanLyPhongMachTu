@@ -1,8 +1,8 @@
 from flask import render_template, request, redirect, url_for, session
 from phongmachapp import app
-from dao import add_new_user,check_user_login
+from dao.dao_user import add_new_user,check_user_login
 import hashlib
-from models import UserType
+from models import UserType,User
 
 
 @app.route('/')
@@ -37,10 +37,12 @@ def signup():
         full_name = request.form['full_name'].strip()
         phone_number = request.form['phone_number'].strip()
         email = request.form['email'].strip()
-        if add_new_user(username, password, full_name, phone_number, email):
+        # kiem tra ten dang nhap va email ton tai chua
+        success,error = add_new_user(username, password, full_name, phone_number, email)
+        if success:
             return redirect('/login')
         else:
-            return render_template('signup.html', error='Tên đăng nhập hoặc email đã tồn tại')
+            return render_template('signup.html', error=error)
 
     return render_template('signup.html')
 
