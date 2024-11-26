@@ -5,13 +5,14 @@ from sqlalchemy.orm import relationship
 from phongmachapp import app,db
 
 class UserType(str,enum.Enum):
-    NGUOI_DUNG="nguoi dung"
-    BAC_SI="bac si"
-    Y_TA="y ta"
-    QUAN_TRI_VIEN="quan tri vien"
+    NGUOI_DUNG="NGUOI_DUNG"
+    BAC_SI="BAC_SI"
+    Y_TA="Y_TA"
+    QUAN_TRI_VIEN="QUAN_TRI_VIEN"
 
 
 class User(db.Model):
+    __tablename__='users'
     id = Column(Integer,primary_key=True,autoincrement=True)
     username = Column(String(50),nullable=False,unique=True)
     password = Column(String(50),nullable=False)
@@ -22,8 +23,9 @@ class User(db.Model):
 
 if __name__ == '__main__':
     with app.app_context():
-        password = str(hashlib.md5("123".encode('utf-8')).hexdigest())
+        # db.drop_all()
         # db.create_all()
+        password = str(hashlib.md5("123".encode('utf-8')).hexdigest())
         # user1 = User(
         #     username="admin",
         #     password=password,
