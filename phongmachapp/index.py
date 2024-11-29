@@ -1,27 +1,24 @@
 from flask import render_template, request, redirect, url_for, session
-from phongmachapp import app
-from dao.dao_user import add_new_user,check_user_login,get_user_by_id
+from phongmachapp import app,login
+from dao.dao_user import add_new_user,check_user_login,get_user_by_id,update_user
 import hashlib
 from models import UserType,User
-
+from flask_login import current_user,login_user,logout_user
+import cloudinary.uploader
 
 @app.route('/')
 def index():
-    # kiem tra da dang nhap chua
-    if not session.get('logged_in'):
-        return render_template("index.html")
-
-    # lay ten dang nhap de hien thi
-    user_id= session.get('user_id')
-    user=get_user_by_id(user_id)
 
 
 
-    return render_template("index.html",user=user)
+
+    return render_template("index.html")
 
 
 @app.route('/login', methods=['GET', 'POST'])
-def login():
+def login_current_user():
+    if(current_user.is_authenticated):
+        return redirect("/")
     if request.method.__eq__('POST'):
         username = request.form['username'].strip()
         password = request.form['password'].strip()
@@ -29,14 +26,17 @@ def login():
 
         if user:
             # luu thong tin phien dang nhap
-            __save_session(user)
-
+            login_user(user)
             # kiem tra loai nguoi dung , sau do chuyen toi trang lam viec
             return __direct_correct_page(user.user_type)
         else:
             return render_template('login.html', error='Sai tài khoản hoặc mật khẩu')
 
     return render_template('login.html')
+
+@login.user_loader
+def load_current_user(user_id):
+    return get_user_by_id(user_id)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -59,17 +59,16 @@ def signup():
 
 @app.route('/doctor', methods=['GET', 'POST'])
 def doctor():
-    # neu phien dang nhap bi xoa
-    if not session.get('logged_in'):
-        return redirect('/login')
+    # neu chua dang nhap
+    if not current_user.is_authenticated:
+        return redirect('/')
 
-    # neu khong phai bac si ,phai dang nhap
-    if session.get('user_type') != UserType.BAC_SI:
-        return redirect('/login')
+    # neu khong phai bac si
+    if current_user.user_type != UserType.BAC_SI:
+        return redirect('/')
 
     # --------------------------------
-    # sau khi co phien dang nhap
-    user_id = session['user_id']
+
 
     # xu ly code o day
 
@@ -91,17 +90,16 @@ def doctor():
 
 @app.route('/nurse', methods=['GET', 'POST'])
 def nurse():
-    # neu phien dang nhap bi xoa
-    if not session.get('logged_in'):
-        return redirect('/login')
+    # neu chua dang nhap
+    if not current_user.is_authenticated:
+        return redirect('/')
 
-    # neu khong phai y ta ,phai dang nhap
-    if session.get('user_type') != UserType.Y_TA:
-        return redirect('/login')
+    # neu khong phai y ta
+    if current_user.user_type != UserType.Y_TA:
+        return redirect('/')
 
     # --------------------------------
-    # sau khi co phien dang nhap
-    user_id = session['user_id']
+
 
     # xu ly code o day
 
@@ -124,17 +122,16 @@ def nurse():
 
 @app.route('/user-patient', methods=['GET', 'POST'])
 def user_patient():
-    # neu phien dang nhap bi xoa
-    if not session.get('logged_in'):
-        return redirect('/login')
+    # neu chua dang nhap
+    if not current_user.is_authenticated:
+        return redirect('/')
 
-    # neu khong phai benh nhan ,phai dang nhap
-    if session.get('user_type') != UserType.NGUOI_DUNG:
-        return redirect('/login')
+    # neu khong phai nguoi dung
+    if current_user.user_type != UserType.NGUOI_DUNG:
+        return redirect('/')
 
     # --------------------------------
-    # sau khi co phien dang nhap
-    user_id = session['user_id']
+
 
     # xu ly code o day
 
@@ -156,20 +153,29 @@ def user_patient():
 
     return render_template('user.html')
 
+@app.route('/info-user', methods=['GET', 'POST'])
+def info_current_user():
 
+    if request.method.__eq__('POST'):
+        avatar = request.files['avatar']
+        if avatar:
+            res =cloudinary.uploader.upload(avatar)
+            avatar_path = res['secure_url']
+            update_user(current_user.id, avatar_path)
+
+    return render_template("info_user.html")
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
-    # neu phien dang nhap bi xoa
-    if not session.get('logged_in'):
-        return redirect('/login')
+    # neu chua dang nhap
+    if not current_user.is_authenticated:
+        return redirect('/')
 
-    # neu khong phai quan tri vien ,phai dang nhap
-    if session.get('user_type') != UserType.QUAN_TRI_VIEN:
-        return redirect('/login')
+    # neu khong phai quan tri vien
+    if current_user.user_type != UserType.QUAN_TRI_VIEN:
+        return redirect('/')
 
     # --------------------------------
-    # sau khi co phien dang nhap
-    user_id = session['user_id']
+
 
     # xu ly code o day
 
@@ -192,20 +198,10 @@ def admin():
 @app.route('/logout')
 def logout():
     # xoa het phien lam viec
-    __clear_session()
+    logout_user()
     return redirect('/')
 
 
-# luu thong tin phien dang nhap
-def __save_session(user):
-    session['logged_in'] = True
-    session['username'] = user.username
-    session['user_id'] = user.id
-    session['user_type'] = user.user_type.value
-
-
-def __clear_session():
-    session.clear()
 
 
 # kiem tra loai nguoi dung , sau do chuyen toi trang lam viec

@@ -22,23 +22,32 @@
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="/">Trang chủ</a>
                     </li>
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#!" id="accountDropdown" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">Account</a>
+                           data-bs-toggle="dropdown" aria-expanded="false">Tài khoản</a>
                         <ul class="dropdown-menu border-0 shadow bsb-zoomIn" aria-labelledby="accountDropdown">
-                            <li><a class="dropdown-item" href="/login">Đăng nhập</a></li>
-                            <li><a class="dropdown-item" href="/logout">Đăng xuất</a></li>
+                            {%if current_user.is_authenticated%}
+                            <li><a class="dropdown-item" href="/info-user">Chào {{current_user.full_name}}</a></li>
+
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
+                            <li><a class="dropdown-item" href="/logout">Đăng xuất</a></li>
+                            {%else%}
+                            <li><a class="dropdown-item" href="/login">Đăng nhập</a></li>
+
                             <li><a class="dropdown-item" href="/signup">Đăng ký</a></li>
+                            {%endif%}
+
                         </ul>
                     </li>
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#!" id="roleDropdown" role="button"
                            data-bs-toggle="dropdown" aria-expanded="false">Công việc</a>
-                        <ul class="dropdown-menu border-0 shadow bsb-zoomIn" aria-labelledby="accountDropdown">
+                        <ul class="dropdown-menu border-0 shadow bsb-zoomIn" aria-labelledby="roleDropdown">
+
                             <li><a class="dropdown-item" href="/user-patient">Người dùng</a></li>
                             <li><a class="dropdown-item" href="/nurse">Y tá</a></li>
                             <li><a class="dropdown-item" href="/doctor">Bác sĩ</a></li>

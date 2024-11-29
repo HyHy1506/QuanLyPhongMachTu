@@ -1,0 +1,77 @@
+{%extends 'layout/base.html'%}
+{%block title%} Thông tin {%endblock%}
+{%block content%}
+<section class="bg-light py-3 py-md-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-10 col-md-8 ">
+                <div class="card border border-light-subtle rounded-3 shadow-sm">
+                    <div class="card-body p-3 p-md-4 p-xl-5">
+                        <div class="text-center mb-3">
+                            <a href="/" class="text-decoration-none">
+                                <h2>PHÒNG MẠCH <br>ĐGĐ</h2>
+                            </a>
+                        </div>
+                        <form method="post" enctype="multipart/form-data">
+                            <div class="row gy-2 overflow-hidden">
+                                {%if current_user.is_authenticated%}
+
+                                <div class="col-12">
+                                    <img width="150" class="rounded img-fluid" src="{{current_user.avatar}}" alt="Ảnh đại diện"></img>
+                                </div>
+                                <div class="col-5">
+                                    <input type="file" class="form-control" name="avatar" id="avatar"
+                                           placeholder="Ảnh đại diện" required>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" name="username"
+                                               id="username_info" placeholder="Tên tài khoản"
+                                               value="{{current_user.username}}">
+                                        <label for="username_info" class="form-label">Tên tài khoản</label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" name="full_name"
+                                               id="full_name_info" placeholder="Tên đầy đủ"
+                                               value="{{current_user.full_name}}">
+                                        <label for="full_name_info" class="form-label">Tên đầy đủ</label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-floating mb-3">
+                                        <input type="number" class="form-control" name="phone_number"
+                                               id="phone_number_info" placeholder="Số điện thoại"
+                                               value="{{current_user.phone_number}}">
+                                        <label for="phone_number_info" class="form-label">Số điện thoại</label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" name="email"
+                                               id="email_info" placeholder="Email" value="{{current_user.email}}">
+                                        <label for="email_info" class="form-label">Email</label>
+                                    </div>
+                                </div>
+                                {%if error%}
+                                <div class="text-danger">
+                                    {{error}}
+                                </div>
+                                {%endif%}
+                                <div class="col-12">
+                                    <div class="d-grid my-3">
+                                        <button class="btn btn-primary btn-lg" type="submit">Chỉnh sửa</button>
+                                    </div>
+                                </div>
+
+                                {%endif%}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{%endblock%}

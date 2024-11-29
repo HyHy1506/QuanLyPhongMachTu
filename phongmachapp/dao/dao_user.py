@@ -1,8 +1,8 @@
 import hashlib
 from phongmachapp.models import *
 
-def get_user_by_id(userId):
-    return User.query.filter(User.id==userId).first()
+def get_user_by_id(user_id):
+    return User.query.get(user_id)
 
 
 def check_user_login(name, passwd):
@@ -44,7 +44,16 @@ def add_new_user(username, passwd, full_name, phone_number, email):
     except Exception as e:
         return False,str(e)
 
-
+def update_user(user_id,avatar=None):
+    if avatar:
+        user=get_user_by_id(user_id)
+        user.avatar = avatar
+        try:
+            db.session.commit()
+            return True, None
+        except Exception as e:
+            db.session.rollback()  # Quay lại nếu có lỗi
+            return False, str(e)
 
 def __add_user(user):
     db.session.add(user)

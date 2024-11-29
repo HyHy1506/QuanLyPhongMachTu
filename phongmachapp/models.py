@@ -3,6 +3,7 @@ import hashlib
 from sqlalchemy import Column,Integer,String,Float,ForeignKey,Enum
 from sqlalchemy.orm import relationship
 from phongmachapp import app,db
+from flask_login import UserMixin
 
 class UserType(str,enum.Enum):
     NGUOI_DUNG="NGUOI_DUNG"
@@ -11,7 +12,7 @@ class UserType(str,enum.Enum):
     QUAN_TRI_VIEN="QUAN_TRI_VIEN"
 
 
-class User(db.Model):
+class User(db.Model,UserMixin):
     __tablename__='users'
     __table_args__ = {'extend_existing': True}
     id = Column(Integer,primary_key=True,autoincrement=True)
@@ -21,12 +22,14 @@ class User(db.Model):
     phone_number = Column(String(50),nullable=False)
     email = Column(String(100),nullable=False,unique=True)
     user_type = Column(Enum(UserType),nullable=False)
+    avatar = Column(String(255),default='https://res.cloudinary.com/df5wj9kts/image/upload/v1732882958/awhckz70evr3mmbsgf77.png')
+
 
 if __name__ == '__main__':
     with app.app_context():
         # db.drop_all()
         # db.create_all()
-        password = str(hashlib.md5("123".encode('utf-8')).hexdigest())
+        # password = str(hashlib.md5("123".encode('utf-8')).hexdigest())
         # user1 = User(
         #     username="admin",
         #     password=password,

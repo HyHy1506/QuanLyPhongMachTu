@@ -15,16 +15,16 @@ Bước 2 : Đăng nhập tài khoản hoặc tạo mới để truy cập vào 
 
 Bước 3: Để lấy thông tin người dùng hiện tại đang đăng nhập , sử dụng :
     
-    thêm session : from flask import session
+    thêm current_user : from flask_login import current_user
 
     kiểm tra đã có người dùng đăng nhập chưa:
         
-        if not session.get('logged_in'):
-            return redirect('/login')
+        if(current_user.is_authenticated):
+            return redirect("/")
 
-    lấy kiểu người dùng : session.get('user_type')
-    lấy id user : session.get('user_id')
-    lấy user name : session['username']
+    lấy kiểu người dùng : current_user.user_type
+    lấy id user : current_user.id
+    lấy user name : current_user.username
 
     lấy được id user rồi thì sẽ truy vấn trong database để tìm user bằng hàm : get_user_by_id(userId)
 

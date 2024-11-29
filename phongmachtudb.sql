@@ -30,10 +30,11 @@ CREATE TABLE `users` (
   `phone_number` varchar(50) NOT NULL,
   `email` varchar(100) NOT NULL,
   `user_type` enum('NGUOI_DUNG','BAC_SI','Y_TA','QUAN_TRI_VIEN') NOT NULL,
+  `avatar` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,7 +43,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'admin','202cb962ac59075b964b07152d234b70','Nguyen Van A','0123456789','admin@gmail.com','QUAN_TRI_VIEN'),(2,'bacsi','202cb962ac59075b964b07152d234b70','Nguyen Van B','0123456789','doctor@gmail.com','BAC_SI'),(3,'yta','202cb962ac59075b964b07152d234b70','Nguyen Van C','0123456789','nurse@gmail.com','Y_TA'),(4,'benhnhan','202cb962ac59075b964b07152d234b70','Nguyen Van D','0123456789','patient@gmail.com','NGUOI_DUNG');
+INSERT INTO `users` VALUES (1,'admin','202cb962ac59075b964b07152d234b70','Nguyen Van A','0123456789','admin@gmail.com','QUAN_TRI_VIEN','https://res.cloudinary.com/df5wj9kts/image/upload/v1732882958/awhckz70evr3mmbsgf77.png'),(2,'bacsi','202cb962ac59075b964b07152d234b70','Nguyen Van B','0123456789','doctor@gmail.com','BAC_SI','https://res.cloudinary.com/df5wj9kts/image/upload/v1732882958/awhckz70evr3mmbsgf77.png'),(3,'yta','202cb962ac59075b964b07152d234b70','Nguyen Van C','0123456789','nurse@gmail.com','Y_TA','https://res.cloudinary.com/df5wj9kts/image/upload/v1732882958/awhckz70evr3mmbsgf77.png'),(4,'benhnhan','202cb962ac59075b964b07152d234b70','Nguyen Van D','0123456789','patient@gmail.com','NGUOI_DUNG','https://res.cloudinary.com/df5wj9kts/image/upload/v1732882958/awhckz70evr3mmbsgf77.png');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -55,4 +56,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-11-26 21:56:28
+-- Dump completed on 2024-11-29 19:30:41

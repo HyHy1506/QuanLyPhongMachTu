@@ -25,13 +25,13 @@
                z-index: 2;">
         Chào mừng username:
     </h2>
-    {% if user %}
+    {% if current_user.is_authenticated %}
     <h2 class="text-primary" style="font-size: 3rem;
                color: white;
                text-align: center;
                position: relative;
                z-index: 2;">
-        {{ user.username }}
+        {{ current_user.full_name }}
     </h2>
     {% endif %}
 </div>
