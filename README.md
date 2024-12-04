@@ -2,7 +2,7 @@
 
 Bước 1 : tạo database mới:
 
-    - xóa cái cũ đi , tạo cái mới ,tạo thủ công database quanlyphongmachtudb 
+    - tạo cái mới ,tạo thủ công database quanlyphongmachtudb 
     - chạy file phongmachtudb.sql trong MySQL Workbench để khởi tạo bảng và giá trị
 
 Bước 2 : Đăng nhập tài khoản hoặc tạo mới để truy cập vào từng trang làm việc theo từng vai trò người dùng:
