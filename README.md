@@ -3,7 +3,15 @@
 Bước 1 : tạo database mới:
 
     - tạo cái mới ,tạo thủ công database quanlyphongmachtudb
-    - chạy file phongmachtudb.sql trong MySQL Workbench để khởi tạo bảng và giá trị
+    - chạy file models.py để tạo các dữ liệu mẫu
+các class được thiết kế :
++ WaitingList : Danh sách chờ
++ PatientList : Danh sách khám bệnh
++ PatientListDetail : Chi tiết danh sách khám bệnh
++ MedicalExaminationForm: Phiếu khám bệnh
++ MedicalExaminationFormDetail : Chi tiết phiếu khám bệnh
++ Medicine : Thuốc
++ PaymentInvoice : Hóa đơn
 
 Bước 2 : Đăng nhập tài khoản hoặc tạo mới để truy cập vào từng trang làm việc theo từng vai trò người dùng:
 

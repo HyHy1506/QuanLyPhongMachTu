@@ -50,7 +50,7 @@ class WaitingList(db.Model):
     __tablename__ = 'waitinglist'
     __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, autoincrement=True)
-    time_frame = Column(Enum(TimeFrame), nullable=False)
+    time_frame = Column(Enum(TimeFrame), default=TimeFrame.SANG,nullable=False)
     appointment_date = Column(DateTime, default=func.now())
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
@@ -82,6 +82,16 @@ class MedicalExaminationForm(db.Model):
     doctor_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     patient_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
+#Chi tiet phieu kham benh
+class MedicalExaminationFormDetail(db.Model):
+    __tablename__ = 'medical_examination_form_detail'
+    __table_args__ = {'extend_existing': True}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    quantity = Column(Integer, default=1, nullable=False)
+    how_to_use = Column(String(255), nullable=False)
+    medical_examination_form_id = Column(Integer, ForeignKey('medical_examination_form.id'), nullable=False)
+    medicine_id = Column(Integer, ForeignKey('medicine.id'), nullable=False)
+
 # Thuoc
 class Medicine(db.Model):
     __tablename__ = 'medicine'
@@ -92,15 +102,6 @@ class Medicine(db.Model):
     price = Column(Float, nullable=False)
     inventory_quantity = Column(Integer, default=0, nullable=False)
 
-#Chi tiet phieu kham benh
-class MedicalExaminationFormDetail(db.Model):
-    __tablename__ = 'medical_examination_form_detail'
-    __table_args__ = {'extend_existing': True}
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    quantity = Column(Integer, default=1, nullable=False)
-    how_to_use = Column(String(255), nullable=False)
-    medical_examination_form_id = Column(Integer, ForeignKey('medical_examination_form.id'), nullable=False)
-    medicine_id = Column(Integer, ForeignKey('medicine.id'), nullable=False)
 
 # hoa don
 class PaymentInvoice(db.Model):
