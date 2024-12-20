@@ -5,26 +5,46 @@
 
     {% if current_user.is_authenticated %}
         <h4 class="text-primary">Quản trị viên: {{ current_user.full_name }}</h4>
+        <div class="row">
+            <div class="col-md-6 col-12">
+                <p>Số lương bệnh nhân khám mỗi ngày</p>
+                <form method="post">
+                    <div class="input-group mb-3">
+                        <input type="number" class="form-control" placeholder="ví dụ : 40" name="num_patient" value="{{ num_patient }}" id="num_patient">
+                        <button class="btn btn-primary" type="submit" id="button-addon2">Lưu</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-6 col-12">
+                <p>Số tiền khám</p>
+                <form method="post">
+                    <div class="input-group mb-3">
+                        <input type="number" class="form-control" placeholder="ví dụ : 100 000" name="medical_fee" value="{{ medical_fee }}" >
+                        <button class="btn btn-primary" type="submit" id="button-addon2">Lưu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
         <table class="table">
-                    <thead>
-                    <tr>
-                        <th>Ngày</th>
-                        <th>Tên bệnh nhân</th>
-                        <th>Tiền khám</th>
-                        <th>Tiền thuốc</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for row in report %}
-                        <tr>
-                            <td>{{ row[0] }}</td>
-                            <td>{{ row[1] }}</td>
-                            <td>{{ row[2] }} VND</td>
-                            <td>{{ row[3] }} VND</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+            <thead>
+            <tr>
+                <th>Ngày</th>
+                <th>Tên bệnh nhân</th>
+                <th>Tiền khám</th>
+                <th>Tiền thuốc</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in report %}
+                <tr>
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2] }} VND</td>
+                    <td>{{ row[3] }} VND</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
 
     {% endif %}
 

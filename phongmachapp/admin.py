@@ -1,7 +1,7 @@
 from flask_login import current_user,login_user,logout_user
 from flask import render_template, request, redirect, url_for, session
 from phongmachapp.dao.dao_admin import monthly_revenue, day_revenue, monthly_medicine
-from MyPhongMAch.phongmachapp.models import UserType
+from phongmachapp.models import UserType
 from phongmachapp import  app,db
 from flask_admin import Admin, AdminIndexView, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
@@ -10,7 +10,7 @@ import json
 from phongmachapp.models import User,Medicine,MedicalExaminationForm,MedicalExaminationFormDetail,PatientListDetail,PatientList,PaymentInvoice,Unit
 
 class MyAdminIndexView(AdminIndexView):
-    @expose("/")
+    @expose("/", methods=["GET", "POST"])
     def index(self):
             # neu chua dang nhap
         if not current_user.is_authenticated:
@@ -18,8 +18,21 @@ class MyAdminIndexView(AdminIndexView):
             # neu khong phai quan tri vien
         if current_user.user_type != UserType.QUAN_TRI_VIEN:
             return redirect('/')
+        if request.method == "POST":
+            num_patient =request.form.get('num_patient')
+            if num_patient:
+                app.config['NUM_PATIENT_PER_DAY'] = num_patient
 
-        return self.render("admin/index.html",report=day_revenue())
+            medical_fee=request.form.get('medical_fee')
+            if medical_fee:
+                app.config['MEDICAL_FEE']=medical_fee
+
+
+
+        return self.render("admin/index.html",report=day_revenue(),
+                           num_patient=app.config['NUM_PATIENT_PER_DAY'],
+                           medical_fee=app.config['MEDICAL_FEE']
+                           )
 
 admin= Admin(app, name='Phòng mạch ĐGĐ', template_mode='bootstrap4',index_view=MyAdminIndexView())
 # admin= Admin(app, name='Phòng mạch ĐGĐ', template_mode='bootstrap4')

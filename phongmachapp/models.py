@@ -45,7 +45,7 @@ class User(db.Model, UserMixin):
     user_type = Column(Enum(UserType), nullable=False, default=UserType.NGUOI_DUNG)
     avatar = Column(String(255),
                     default='https://res.cloudinary.com/df5wj9kts/image/upload/v1732882958/awhckz70evr3mmbsgf77.png')
-
+# Danh sach cho
 class WaitingList(db.Model):
     __tablename__ = 'waitinglist'
     __table_args__ = {'extend_existing': True}
@@ -54,6 +54,7 @@ class WaitingList(db.Model):
     appointment_date = Column(DateTime, default=func.now())
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
+# Danh sach kham benh
 class PatientList(db.Model):
     __tablename__ = 'patient_list'
     __table_args__ = {'extend_existing': True}
@@ -62,7 +63,15 @@ class PatientList(db.Model):
     appointment_date = Column(DateTime, default=func.now())
     nurse_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
+# chi tiet danh sach kham benh
+class PatientListDetail(db.Model):
+    __tablename__ = 'patient_list_detail'
+    __table_args__ = {'extend_existing': True}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    patient_list_id = Column(Integer, ForeignKey('patient_list.id'), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
 
+# Phieu kham benh
 class MedicalExaminationForm(db.Model):
     __tablename__ = 'medical_examination_form'
     __table_args__ = {'extend_existing': True}
@@ -73,7 +82,7 @@ class MedicalExaminationForm(db.Model):
     doctor_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     patient_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
-
+# Thuoc
 class Medicine(db.Model):
     __tablename__ = 'medicine'
     __table_args__ = {'extend_existing': True}
@@ -83,7 +92,7 @@ class Medicine(db.Model):
     price = Column(Float, nullable=False)
     inventory_quantity = Column(Integer, default=0, nullable=False)
 
-
+#Chi tiet phieu kham benh
 class MedicalExaminationFormDetail(db.Model):
     __tablename__ = 'medical_examination_form_detail'
     __table_args__ = {'extend_existing': True}
@@ -93,7 +102,7 @@ class MedicalExaminationFormDetail(db.Model):
     medical_examination_form_id = Column(Integer, ForeignKey('medical_examination_form.id'), nullable=False)
     medicine_id = Column(Integer, ForeignKey('medicine.id'), nullable=False)
 
-
+# hoa don
 class PaymentInvoice(db.Model):
     __tablename__ = 'payment_invoice'
     __table_args__ = {'extend_existing': True}
@@ -103,13 +112,6 @@ class PaymentInvoice(db.Model):
     cashier_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     medical_examination_form_id = Column(Integer, ForeignKey('medical_examination_form.id'), nullable=False,primary_key=True)
 
-
-class PatientListDetail(db.Model):
-    __tablename__ = 'patient_list_detail'
-    __table_args__ = {'extend_existing': True}
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    patient_list_id = Column(Integer, ForeignKey('patient_list.id'), primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
 
 
 if __name__ == '__main__':
@@ -188,6 +190,17 @@ if __name__ == '__main__':
         db.session.add_all(users)
         db.session.commit()  # Commit users to the database
 
+        # add waitinglist
+        waiting_list=[]
+        for _ in range(20):
+            waiting=WaitingList(
+                time_frame=random.choice(list(TimeFrame)),
+                appointment_date = random_date(datetime(2024, 1, 1), datetime(2024, 12, 31)),
+                user_id = random.choice([user.id for user in users if user.user_type == UserType.NGUOI_DUNG])
+            )
+            waiting_list.append(waiting)
+        db.session.add_all(waiting_list)
+        db.session.commit()
         # Add Medicines
         medicines = []
         units=[1,2,3]
@@ -204,7 +217,7 @@ if __name__ == '__main__':
 
         # Add Patient Lists
         patient_lists = []
-        for _ in range(15):
+        for _ in range(60):
             patient_list = PatientList(
                 created_date=random_date(datetime(2023, 1, 1), datetime(2024, 12, 31)),
                 appointment_date=random_date(datetime(2024, 1, 1), datetime(2024, 12, 31)),
@@ -216,7 +229,7 @@ if __name__ == '__main__':
 
         # Add Medical Examination Forms
         medical_forms = []
-        for _ in range(15):
+        for _ in range(60):
             medical_form = MedicalExaminationForm(
                 appointment_date=random_date(datetime(2024, 1, 1), datetime(2024, 12, 31)),
                 symptom=fake.sentence(),
@@ -230,7 +243,7 @@ if __name__ == '__main__':
 
         # Add Medical Examination Form Details
         form_details = []
-        for _ in range(20):
+        for _ in range(120):
             form_detail = MedicalExaminationFormDetail(
                 quantity=random.randint(1, 10),
                 how_to_use=fake.sentence(),
@@ -261,7 +274,7 @@ if __name__ == '__main__':
 
         # Add Patient List Details
         patient_list_details = []
-        for _ in range(20):
+        for _ in range(120):
             detail = PatientListDetail(
                 patient_list_id=random.choice([pl.id for pl in patient_lists]),
                 user_id=random.choice([user.id for user in users if user.user_type == UserType.NGUOI_DUNG])
