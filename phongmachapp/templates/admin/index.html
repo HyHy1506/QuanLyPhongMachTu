@@ -1,0 +1,31 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+
+
+    {% if current_user.is_authenticated %}
+        <h4 class="text-primary">Quản trị viên: {{ current_user.full_name }}</h4>
+        <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Ngày</th>
+                        <th>Tên bệnh nhân</th>
+                        <th>Tiền khám</th>
+                        <th>Tiền thuốc</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in report %}
+                        <tr>
+                            <td>{{ row[0] }}</td>
+                            <td>{{ row[1] }}</td>
+                            <td>{{ row[2] }} VND</td>
+                            <td>{{ row[3] }} VND</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+    {% endif %}
+
+{% endblock %}

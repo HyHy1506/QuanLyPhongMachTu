@@ -1,6 +1,117 @@
-{%extends 'layout/base.html'%}
-{%block title%} Người dùng {%endblock%}
-{%block content%}
-<h1>Viết trang người dùng muốn khám bệnh ở đây</h1>
+{% extends 'layout/base.html' %}
+{% block title %} Người dùng {% endblock %}
+{% block content %}
+    <div class="container p-0">
+        <div class="row">
+            <div class="col-2 vh-100 bg-info">
+                <ul class="list-group list-group-flush ">
+                    <li class="list-group-item list-group-item-action"><a href="/" class="text-decoration-none">chuc
+                        nang 1</a></li>
+                    <li class="list-group-item list-group-item-action"><a href="/" class="text-decoration-none">chuc
+                        nang 1</a></li>
+                    <li class="list-group-item list-group-item-action"><a href="/" class="text-decoration-none">chuc
+                        nang 1</a></li>
+                    <li class="list-group-item list-group-item-action"><a href="/" class="text-decoration-none">chuc
+                        nang 1</a></li>
 
-{%endblock%}
+                </ul>
+            </div>
+            <div class="col-7 ">
+                <h3>Dang ky kham benh</h3>
+                <form method="post">
+                    <div class="row gy-2 overflow-hidden">
+                        <div class="col-12">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" name="full_name" id="full_name"
+                                       placeholder="ten cua ban" required>
+                                <label for="full_name" class="form-label">Ten day du</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" name="phone_number" id="phone_number"
+                                       placeholder="abc" required>
+                                <label for="phone_number" class="form-label">So dien thoai</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <p>gioi tinh</p>
+                                <select class="form-select" aria-label="Default select example">
+
+                                    <option value="1" selected>Nam</option>
+                                    <option value="0">Nu</option>
+
+                                </select>
+                        </div>
+                        <div class="col-12">
+                            <p>khung gio kham</p>
+                                <select class="form-select" aria-label="Default select example">
+
+                                    <option value="0" selected>Sang</option>
+                                    <option value="1">Chieu</option>
+                                    <option value="2">Toi</option>
+                                </select>
+                        </div>
+                        <div class="col-12">
+                            <div class="col-sm-6 col-lg-5">
+    <div data-coreui-date="2023/03/15" data-coreui-footer="true" data-coreui-locale="en-US" data-coreui-toggle="date-picker"></div>
+  </div>
+<div class="form-group">
+
+        <label for="datepicker">Date:</label>
+
+        <input type="text" class="form-control" id="datepicker" placeholder="Select a date">
+
+        <button id="todayButton" class="btn btn-primary mt-2">Today</button>
+
+    </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="d-grid my-3">
+                                <button class="btn btn-primary btn-lg" type="submit">Đăng ky kham</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+            <div class="col-3 bg-danger"></div>
+        </div>
+    </div>
+<script>
+
+    $(document).ready(function(){
+
+        // Initialize the datepicker
+
+        $('#datepicker').datepicker({
+
+            format: 'mm/dd/yyyy', // Set the date format
+
+            autoclose: true // Close the datepicker after selection
+
+        });
+
+
+        // Set today's date when the button is clicked
+
+        $('#todayButton').click(function() {
+
+            var today = new Date();
+
+            var dd = String(today.getDate()).padStart(2, '0');
+
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+
+            var yyyy = today.getFullYear();
+
+            today = mm + '/' + dd + '/' + yyyy; // Format: mm/dd/yyyy
+
+            $('#datepicker').datepicker('setDate', today); // Set the date in the datepicker
+
+        });
+
+    });
+
+</script>
+{% endblock %}

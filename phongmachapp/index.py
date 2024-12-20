@@ -164,36 +164,36 @@ def info_current_user():
             update_user(current_user.id, avatar_path)
 
     return render_template("info_user.html")
-@app.route('/admin', methods=['GET', 'POST'])
-def admin():
-    # neu chua dang nhap
-    if not current_user.is_authenticated:
-        return redirect('/')
-
-    # neu khong phai quan tri vien
-    if current_user.user_type != UserType.QUAN_TRI_VIEN:
-        return redirect('/')
-
-    # --------------------------------
-
-
-    # xu ly code o day
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # --------------------
-    return render_template('admin.html')
-
+# @app.route('/admin', methods=['GET', 'POST'])
+# def admin():
+#     # neu chua dang nhap
+#     if not current_user.is_authenticated:
+#         return redirect('/')
+#
+#     # neu khong phai quan tri vien
+#     if current_user.user_type != UserType.QUAN_TRI_VIEN:
+#         return redirect('/')
+#
+#     # --------------------------------
+#
+#
+#     # xu ly code o day
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#     # --------------------
+#     return render_template('admin.html')
+#
 
 @app.route('/logout')
 def logout():
@@ -220,4 +220,5 @@ def __direct_correct_page(user_type):
 
 if __name__ == '__main__':
     with app.app_context():
+        from phongmachapp import  admin
         app.run(debug=True)

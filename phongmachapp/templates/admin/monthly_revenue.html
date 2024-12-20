@@ -1,0 +1,140 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+    <style>
+        .navbar {
+            background: dodgerblue;
+        }
+    </style>
+
+    {% if current_user.is_authenticated %}
+
+        <div class="row">
+            <div class=" col-12 mb-5">
+                <h1>BÁO CÁO DOANH THU THEO THÁNG</h1>
+                <form method="post">
+                    <label>Tháng : </label>
+                    <select class="form-select" name="month" id="month">
+                        {% for i in list_month %}
+                            <option value="{{ i }}">{{ i }}</option>
+                        {% endfor %}
+                    </select>
+                    <lable>Năm</lable>
+                    <select class="form-select" name="year" id="year">
+                        {% for i in list_year %}
+                            <option value="{{ i }}">{{ i }}</option>
+                        {% endfor %}
+
+                    </select>
+                    <button class="btn btn-primary btn-sm">Tìm kiếm</button>
+                </form>
+                <p>Tháng: {{ report.month }}/{{ report.year }}</p>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Ngày</th>
+                        <th>Số bệnh nhân</th>
+                        <th>Doanh thu</th>
+                        <th>Tỷ lệ (%)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in report.data %}
+                        <tr>
+                            <td>{{ row.stt }}</td>
+                            <td>{{ row.day }}</td>
+                            <td>{{ row.num_patients }}</td>
+                            <td>{{ row.revenue }} VNĐ</td>
+                            <td>{{ row.percentage }}%</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <p><strong>Tổng doanh thu:</strong> {{ report.total_revenue }} VNĐ</p>
+
+            </div>
+
+            <div class="col-md-6 col-12 mb-5">
+                <h1>BIỂU ĐỒ DOANH THU THEO NGÀY TRONG THÁNG</h1>
+
+                <canvas id="revenueChart"></canvas>
+            </div>
+        <div class=" col-12">
+                <h1>BIỂU ĐỒ SỐ BỆNH NHÂN KHÁM THEO NGÀY TRONG THÁNG</h1>
+
+                <canvas id="quantityChart"></canvas>
+            </div>
+        </div>
+
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <script>
+            var monthSelect = document.getElementById("month");
+            var yearSelect = document.getElementById("year");
+            monthSelect.value = {{ selected_month }};
+            yearSelect.value = {{ selected_year }};
+            document.addEventListener("DOMContentLoaded", function () {
+
+
+                const ctx1 = document.getElementById('revenueChart');
+                const listDay = {{ list_day|tojson }};
+                new Chart(ctx1, {
+                    type: 'pie',
+                    data: {
+                        labels: listDay,
+                        datasets: [{
+                            label: 'Doanh thu',
+                            data: {{ list_revenues}},
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                 const ctx2 = document.getElementById('quantityChart');
+                new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: listDay,
+                        datasets: [{
+                            label: 'Số lượng',
+                            data: {{ list_quantity_patient}},
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            });
+
+
+        </script>
+    {% else %}
+        <h1 class="text-center text-success">ĐĂNG NHẬP QUẢN TRỊ</h1>
+        <form method="post" action="/admin/login">
+            <div class="mb-3 mt-3">
+                <label for="username" class="form-label">Tên đăng nhập:</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Tên đăng nhập"
+                       required>
+            </div>
+            <div class="mb-3">
+                <label for="pwd" class="form-label">Mật khẩu:</label>
+                <input type="password" class="form-control" id="pwd" name="password" placeholder="Mật khẩu" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Đăng nhập</button>
+        </form>
+    {% endif %}
+
+{% endblock %}
