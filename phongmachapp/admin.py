@@ -1,6 +1,6 @@
 from flask_login import current_user,login_user,logout_user
 from flask import render_template, request, redirect, url_for, session
-from phongmachapp.dao.dao_admin import monthly_revenue, day_revenue, monthly_medicine
+from phongmachapp.dao.dao_admin import monthly_revenue, day_revenue, monthly_medicine,get_patient_list
 from phongmachapp.models import UserType
 from phongmachapp import  app,db
 from flask_admin import Admin, AdminIndexView, BaseView, expose
@@ -26,12 +26,12 @@ class MyAdminIndexView(AdminIndexView):
             medical_fee=request.form.get('medical_fee')
             if medical_fee:
                 app.config['MEDICAL_FEE']=medical_fee
-
-
+        report2 = get_patient_list()
 
         return self.render("admin/index.html",report=day_revenue(),
                            num_patient=app.config['NUM_PATIENT_PER_DAY'],
-                           medical_fee=app.config['MEDICAL_FEE']
+                           medical_fee=app.config['MEDICAL_FEE'],
+                            report2=report2
                            )
 
 admin= Admin(app, name='Phòng mạch ĐGĐ', template_mode='bootstrap4',index_view=MyAdminIndexView())
@@ -149,6 +149,7 @@ class MonthlyMedicineView(AuthenticateAdminBaseView):
                            report=report,
                           )
 
+
 class LogoutView(AuthenticateAdminBaseView):
     @expose("/")
     def index(self):
@@ -160,8 +161,8 @@ admin.add_view(UnitView(Unit, db.session,name="Quản lý đơn vị"))
 admin.add_view(MedicineView(Medicine, db.session,name="Quản lý thuốc"))
 admin.add_view(MedicalExaminationFormView(MedicalExaminationForm, db.session,name="Phiếu khám bệnh"))
 admin.add_view(MedicalExaminationFormDetailView(MedicalExaminationFormDetail, db.session,name="Chi tiết phiếu khám bệnh"))
-admin.add_view(PatientListDetailView(PatientListDetail, db.session,name="Danh sách khám"))
-admin.add_view(PatientListView(PatientList, db.session,name="Chi tiết danh sách khám"))
+admin.add_view(PatientListDetailView(PatientListDetail, db.session,name="Chi tiet Danh sách khám"))
+admin.add_view(PatientListView(PatientList, db.session,name="danh sách khám"))
 admin.add_view(PaymentInvoiceView(PaymentInvoice, db.session,name="Hóa đơn"))
 admin.add_view(MonthlyRevenueView(name="Thống kê doanh thu theo tháng"))
 admin.add_view(MonthlyMedicineView(name="Thống kê sử dụng thuốc theo tháng"))
