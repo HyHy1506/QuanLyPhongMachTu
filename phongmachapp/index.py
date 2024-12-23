@@ -6,6 +6,9 @@ from models import UserType,User
 from flask_login import current_user,login_user,logout_user
 import cloudinary.uploader
 
+from phongmachapp.dao.dao_doctor import get_patient_list, get_history_patient
+
+
 @app.route('/')
 def index():
 
@@ -72,6 +75,7 @@ def doctor():
 
     # xu ly code o day
 
+    report=get_patient_list()
 
 
 
@@ -85,8 +89,38 @@ def doctor():
 
     # --------------------------------
 
-    return render_template('doctor.html')
+    return render_template('doctor.html',report=report)
 
+@app.route('/history-patient')
+def history_patient():
+    # neu chua dang nhap
+    if not current_user.is_authenticated:
+        return redirect('/')
+
+    # neu khong phai bac si
+    if current_user.user_type != UserType.BAC_SI:
+        return redirect('/')
+
+    # --------------------------------
+
+
+    # xu ly code o day
+    patient_id=request.args.get('id')
+    report=get_history_patient(patient_id)
+
+
+
+
+
+
+
+
+
+
+
+    # --------------------------------
+
+    return render_template('history_patient.html',report=report)
 
 @app.route('/nurse', methods=['GET', 'POST'])
 def nurse():

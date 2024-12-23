@@ -1,6 +1,6 @@
 from flask_login import current_user,login_user,logout_user
 from flask import render_template, request, redirect, url_for, session
-from phongmachapp.dao.dao_admin import monthly_revenue, day_revenue, monthly_medicine,get_patient_list
+from phongmachapp.dao.dao_admin import monthly_revenue, day_revenue, monthly_medicine
 from phongmachapp.models import UserType
 from phongmachapp import  app,db
 from flask_admin import Admin, AdminIndexView, BaseView, expose
@@ -26,12 +26,12 @@ class MyAdminIndexView(AdminIndexView):
             medical_fee=request.form.get('medical_fee')
             if medical_fee:
                 app.config['MEDICAL_FEE']=medical_fee
-        report2 = get_patient_list()
+
 
         return self.render("admin/index.html",report=day_revenue(),
                            num_patient=app.config['NUM_PATIENT_PER_DAY'],
                            medical_fee=app.config['MEDICAL_FEE'],
-                            report2=report2
+
                            )
 
 admin= Admin(app, name='Phòng mạch ĐGĐ', template_mode='bootstrap4',index_view=MyAdminIndexView())

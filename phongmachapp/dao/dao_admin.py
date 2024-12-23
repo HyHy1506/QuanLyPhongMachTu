@@ -89,14 +89,3 @@ def monthly_medicine(month=None,year=None):
 
     return data.all()
 
-def get_patient_list(patient_list_id=None):
-    data= db.session.query(
-        func.date( PatientList.appointment_date),
-        PatientList.id,
-        PatientListDetail.user_id,
-        User.full_name,
-    ).select_from(PatientList)\
-    .join(PatientListDetail,PatientListDetail.patient_list_id == PatientList.id)\
-    .join(User,User.id== PatientListDetail.user_id)\
-    .order_by(PatientList.id)
-    return data.all()
