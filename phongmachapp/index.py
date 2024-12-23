@@ -1,15 +1,18 @@
-from flask import render_template, request, redirect, url_for, session
+from flask import render_template, request, redirect, url_for, session,flash
 from phongmachapp import app,login
 from dao.dao_user import add_new_user,check_user_login,get_user_by_id,update_user
 import hashlib
 from models import UserType,User
 from flask_login import current_user,login_user,logout_user
 import cloudinary.uploader
-
+from datetime import datetime
 from phongmachapp.dao.dao_doctor import get_patient_list, get_history_patient
+from phongmachapp.dao.dao_user_patient import get_history_register_examination_by_user_id, get_history_examination, \
+    add_waiting_list
+from phongmachapp.utilities import FunctionUserPatientEnum
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
 
 
@@ -168,24 +171,66 @@ def user_patient():
 
 
     # xu ly code o day
+    my_func=FunctionUserPatientEnum.REGISTER_EXAMINATION
+    request_func=request.args.get('func')
+    try:
+        # Chuyển chuỗi request_func thành Enum
+        request_func_enum = FunctionUserPatientEnum(request_func)
+    except ValueError:
+        # Nếu không chuyển được, mặc định là REGISTER_EXAMINATION
+        request_func_enum = FunctionUserPatientEnum.REGISTER_EXAMINATION
 
+    if request_func_enum == FunctionUserPatientEnum.HISTORY_REGISTER:
+        my_func = FunctionUserPatientEnum.HISTORY_REGISTER
+        report_history_register=get_history_register_examination_by_user_id(user_id=current_user.id)
+        return render_template('user.html',
+                               current_function=my_func,
+                               report_history_register=report_history_register,
+                               )
 
+    elif request_func_enum == FunctionUserPatientEnum.HISTORY_EXAMINATION:
+        my_func = FunctionUserPatientEnum.HISTORY_EXAMINATION
+        report_history_examination=get_history_examination(current_user.id)
+        return render_template('user.html',
+                               current_function=my_func,
+                               report_history_examination=report_history_examination,
+                               )
 
+    elif request_func_enum == FunctionUserPatientEnum.NOTIFICATION:
+        my_func = FunctionUserPatientEnum.NOTIFICATION
+        return render_template('user.html',current_function=my_func)
 
+    else:
+        my_func = FunctionUserPatientEnum.REGISTER_EXAMINATION
+        time_frame = 1
+        appointment_date=1
+        if request.method == 'POST':
+            # Lấy dữ liệu từ form
+            time_frame = request.form.get('time_frame')
+            appointment_date = request.form.get('appointment_date')
+            # HTML date -> Python datetime
+            appointment_date= datetime.strptime(appointment_date, '%Y-%m-%d')
 
+            # # Kiểm tra dữ liệu
+            if not appointment_date or not time_frame:
+                pass
+            else:
+                add_waiting_list(
+                    user_id=current_user.id,
+                    time_frame=time_frame,
+                    appointment_date=appointment_date,
+                )
+                pass
 
-
-
-
-
-
-
-
+        return render_template('user.html',
+                               current_function=my_func,
+                               time_frame=time_frame,
+                               appointment_date=appointment_date
+                               )
 
 
     # --------------------
 
-    return render_template('user.html')
 
 @app.route('/info-user', methods=['GET', 'POST'])
 def info_current_user():
@@ -251,6 +296,12 @@ def __direct_correct_page(user_type):
     else:
         return redirect('/')
 
+
+@app.context_processor
+def common_attributes():
+    return {
+        'FunctionUserPatientEnum':FunctionUserPatientEnum
+    }
 
 if __name__ == '__main__':
     with app.app_context():

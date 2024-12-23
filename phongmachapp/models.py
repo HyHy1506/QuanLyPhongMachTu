@@ -177,6 +177,10 @@ if __name__ == '__main__':
         # Add Users
         password = str(hashlib.md5("123".encode('utf-8')).hexdigest())
         users = []
+        users.append(user1)
+        users.append(user2)
+        users.append(user3)
+        users.append(user4)
         for _ in range(20):
             user = User(
                 username=fake.unique.user_name(),
@@ -193,7 +197,7 @@ if __name__ == '__main__':
 
         # add waitinglist
         waiting_list=[]
-        for _ in range(20):
+        for _ in range(120):
             waiting=WaitingList(
                 time_frame=random.choice(list(TimeFrame)),
                 appointment_date = random_date(datetime(2024, 1, 1), datetime(2024, 12, 31)),
