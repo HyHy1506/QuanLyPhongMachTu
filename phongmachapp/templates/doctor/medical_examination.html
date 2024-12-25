@@ -1,0 +1,77 @@
+{% extends 'layout/base.html' %}
+{% block title %} Bác sĩ {% endblock %}
+{% block content %}
+    <div class="container">
+        <!-- Example single danger button -->
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link text-primary active" aria-current="page"
+                   href="/medical_examination?patient_id={{ patient_id }}">Khám bệnh</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-secondary" href="/history_patient?patient_id={{ patient_id }}">Lịch sử bệnh nhân</a>
+            </li>
+        </ul>
+        <h1>Khám bệnh</h1>
+        <!-- Button to trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMedicalFormModal">
+    Thêm phiếu khám bệnh
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="addMedicalFormModal" tabindex="-1" aria-labelledby="addMedicalFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addMedicalFormModalLabel">Thêm phiếu khám bệnh</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="/add-medical-form?patient_id={{ patient_id }}">
+                <div class="modal-body">
+                    <!-- Ngày hiện tại -->
+                    <div class="mb-3">
+                        <label for="appointment_date" class="form-label">Ngày khám</label>
+                        <input type="text" class="form-control" id="appointment_date" name="appointment_date"
+                               value="{{ current_date }}" readonly>
+                    </div>
+                    <!-- Triệu chứng -->
+                    <div class="mb-3">
+                        <label for="symptom" class="form-label">Triệu chứng</label>
+                        <input type="text" class="form-control" id="symptom" name="symptom" required>
+                    </div>
+                    <!-- Bệnh dự đoán -->
+                    <div class="mb-3">
+                        <label for="predicted_disease" class="form-label">Bệnh dự đoán</label>
+                        <input type="text" class="form-control" id="predicted_disease" name="predicted_disease" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>STT</th>
+                <th>Ngày</th>
+                <th>Mã Phiếu khám bệnh</th>
+                <th>Chẩn đoán bệnh</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in report %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ row[0] }}</td>
+                    <td><a href="/edit_medical_examination_form?medical_examination_form_id={{ row[1] }}"> {{ row[1] }}</a></td>
+                    <td>{{ row[2] }} </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

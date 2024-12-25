@@ -6,11 +6,14 @@ from models import UserType,User
 from flask_login import current_user,login_user,logout_user
 import cloudinary.uploader
 from datetime import datetime
-from phongmachapp.dao.dao_doctor import get_patient_list, get_history_patient, get_medicine
+from phongmachapp.dao.dao_doctor import get_patient_list, get_history_patient, get_medicine, \
+    get_medical_examination_form_by_user_id, create_new_medical_examination_form, \
+    get_full_medical_examination_form_by_medical_examination_form,\
+    get_medicine_by_medical_examination_form_id
 from phongmachapp.dao.dao_user_patient import get_history_register_examination_by_user_id, get_history_examination, \
     add_waiting_list
 from phongmachapp.utilities import FunctionUserPatientEnum
-
+from sqlalchemy import func
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -108,7 +111,7 @@ def history_patient():
 
 
     # xu ly code o day
-    patient_id=request.args.get('id')
+    patient_id=request.args.get('patient_id')
     report=get_history_patient(patient_id)
 
 
@@ -123,8 +126,87 @@ def history_patient():
 
     # --------------------------------
 
-    return render_template('history_patient.html',report=report)
+    return render_template('doctor/history_patient.html',
+                           report=report,
+                           patient_id=patient_id,
+                           )
+@app.route('/medical_examination')
+def medical_examination():
+    # neu chua dang nhap
+    if not current_user.is_authenticated:
+        return redirect('/')
 
+    # neu khong phai bac si
+    if current_user.user_type != UserType.BAC_SI:
+        return redirect('/')
+
+    # --------------------------------
+
+
+    # xu ly code o day
+    current_date = datetime.now().strftime('%d-%m-%Y')
+    patient_id=request.args.get('patient_id')
+    report=get_medical_examination_form_by_user_id(patient_id)
+    # --------------------------------
+
+    return render_template('doctor/medical_examination.html',
+                           report=report,
+                           patient_id=patient_id,
+                           current_date=current_date
+                           )
+
+
+@app.route('/edit_medical_examination_form')
+def edit_medical_examination_form():
+    # neu chua dang nhap
+    if not current_user.is_authenticated:
+        return redirect('/')
+
+    # neu khong phai bac si
+    if current_user.user_type != UserType.BAC_SI:
+        return redirect('/')
+
+    # --------------------------------
+    # xu ly code o day
+    medical_examination_form_id=request.args.get('medical_examination_form_id')
+    info_medical_examination_form=get_full_medical_examination_form_by_medical_examination_form(
+        medical_examination_form_id=medical_examination_form_id
+    )[0]
+    medicine_report=get_medicine_by_medical_examination_form_id(
+        medical_examination_id=medical_examination_form_id
+    )
+    # --------------------------------
+
+    return render_template('doctor/edit_medical_examination_form.html',
+                           medical_examination_form_id=medical_examination_form_id,
+                           info_medical_examination_form=info_medical_examination_form,
+                           medicine_report=medicine_report
+                           )
+@app.route('/add-medical-form', methods=['POST'])
+def add_medical_form():
+    try:
+        # Lấy dữ liệu từ form
+        appointment_date =func.now()
+        symptom = request.form.get('symptom')
+        predicted_disease = request.form.get('predicted_disease')
+
+        doctor_id = current_user.id  # Cần đảm bảo bạn có hệ thống đăng nhập
+        patient_id = request.args.get('patient_id')  # ID bệnh nhân có thể truyền qua URL hoặc form
+
+        create_new_medical_examination_form(
+           appointment_date=appointment_date,
+           symptom=symptom,
+           predicted_disease=predicted_disease,
+           doctor_id=doctor_id,
+           patient_id=patient_id
+        )
+
+        flash("Thêm phiếu khám bệnh thành công!", "success")
+    except Exception as e:
+
+        flash(f"Có lỗi xảy ra: {str(e)}", "danger")
+
+    return redirect(url_for('medical_examination', patient_id=patient_id))
 @app.route('/history_patient/add_medicine')
 def add_medicine(mediciane_id=None):
     if not current_user.is_authenticated:
@@ -137,7 +219,7 @@ def add_medicine(mediciane_id=None):
     patient_id = request.args.get('id')
     report = get_medicine(mediciane_id)
 
-    return render_template('add_medicine.html', report=report)
+    return render_template('doctor/add_medicine.html', report=report)
 
 @app.route('/nurse', methods=['GET', 'POST'])
 def nurse():

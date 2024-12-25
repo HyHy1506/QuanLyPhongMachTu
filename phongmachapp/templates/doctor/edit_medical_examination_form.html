@@ -1,0 +1,103 @@
+{% extends 'layout/base.html' %}
+{% block title %} Bác sĩ {% endblock %}
+{% block content %}
+    <div class="container min-vh-100">
+        <h3 class="mt-3 mb-3">Phiếu khám bệnh</h3>
+{#        <h1>{{ medical_examination_form_id }}</h1>#}
+{#        <h5>{{ info_medical_examination_form }}</h5>#}
+{#        <h5>{{ medicine_report }}</h5>#}
+<button type="button" class="btn btn-primary mt-3 mb-3" data-bs-toggle="modal" data-bs-target="#addMedicineFormModal">
+    Thêm thuốc
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="addMedicineFormModal" tabindex="-1" aria-labelledby="addMedicineFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addMedicineFormModalLabel">Thêm thuốc</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="/add-medicine-to-medical-examination-form?">
+                <div class="modal-body">
+
+                    <!-- Bệnh dự đoán -->
+                    <div class="mb-3">
+                        <label for="predicted_disease" class="form-label">Thuốc</label>
+                        <input type="text" class="form-control" id="predicted_disease" name="predicted_disease" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+ <form method="post">
+        <div class="row">
+
+            <div class="col-12 col-md-6">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" name="patient_name"
+                           placeholder="Tên đăng nhập"
+                           value="{{ info_medical_examination_form.full_name }}" readonly>
+                    <label for="username_signup" class="form-label" >Họ tên</label>
+                </div>
+            </div>
+             <div class="col-12 col-md-6">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" name="appointment_date"
+                           placeholder="Tên đăng nhập"
+                            value="{{ info_medical_examination_form.appointment_date }}" readonly>
+                    <label for="username_signup" class="form-label">Ngày khám</label>
+                </div>
+            </div>
+             <div class="col-12 col-md-6">
+                <div class="form-floating mb-3">
+
+                    <textarea class="form-control"  rows="3"
+                    name="symptom"
+                           placeholder="Tên đăng nhập"
+
+                    >{{ info_medical_examination_form.symptom }}</textarea>
+                    <label for="username_signup" class="form-label">Triệu chứng</label>
+                </div>
+            </div>
+             <div class="col-12 col-md-6">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" name="predicted_disease"
+                           placeholder="Tên đăng nhập"
+                    value="{{ info_medical_examination_form.predicted_disease }}"
+                    >
+                    <label for="username_signup" class="form-label">Dự đoán loại bệnh</label>
+                </div>
+            </div>
+
+        </div>
+  </form>
+    <table class="table">
+            <thead>
+            <tr>
+                <th>STT</th>
+                <th>Thuốc</th>
+                <th>Đơn vị</th>
+                <th>Số lượng</th>
+                <th>Cách dùng</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for medicine in medicine_report %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ medicine.medicine_name }}</td>
+                    <td>{{ medicine.unit_name }} </td>
+                    <td>{{ medicine.quantity }} </td>
+                    <td>{{ medicine.how_to_use }} </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

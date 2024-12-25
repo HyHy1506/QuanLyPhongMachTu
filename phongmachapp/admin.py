@@ -6,6 +6,8 @@ from phongmachapp import  app,db
 from flask_admin import Admin, AdminIndexView, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from markupsafe import Markup
+from wtforms_sqlalchemy.fields import QuerySelectField
+from wtforms import validators
 import json
 from phongmachapp.models import User,Medicine,MedicalExaminationForm,MedicalExaminationFormDetail,PatientListDetail,PatientList,PaymentInvoice,Unit
 
@@ -55,11 +57,13 @@ class UserView(AuthenticateAdminView):
         )
     }
 
+
 class MedicineView(AuthenticateAdminView):
     column_list = ["id", "name", "unit_id", "price", "inventory_quantity"]
     form_columns = ["name", "unit_id", "price", "inventory_quantity"]
     column_searchable_list = ["name"]
     column_filters = ["unit_id"]
+
 
 class PatientListView(AuthenticateAdminView):
     column_list = ["id", "created_date", "appointment_date", "nurse_id"]

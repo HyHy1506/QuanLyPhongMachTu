@@ -1,0 +1,39 @@
+{% extends 'layout/base.html' %}
+{% block title %} Bác sĩ {% endblock %}
+{% block content %}
+    <div class="container">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link text-secondary" aria-current="page"
+                   href="/medical_examination?patient_id={{ patient_id }}">Khám
+                    bệnh</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-primary active" href="/history_patient?patient_id={{ patient_id }}">Lịch sử bệnh
+                    nhân</a>
+            </li>
+        </ul>
+        <h1>Lịch sử bệnh nhân</h1>
+{#        <button id="add-medicine-btn" onclick="location.href='/history_patient/add_medicine'">+ Thêm thuốc</button>#}
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Ngày</th>
+                <th>Tên bệnh nhân</th>
+                <th>Triệu chứng</th>
+                <th>Bệnh</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in report %}
+                <tr>
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2] }} </td>
+                    <td>{{ row[3] }} </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
