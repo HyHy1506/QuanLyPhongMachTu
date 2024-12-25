@@ -24,3 +24,15 @@ def get_history_patient(patient_id=None):
     if patient_id:
         data= data.filter(MedicalExaminationForm.patient_id==patient_id)
     return data.all()
+
+def get_medicine(mediciane_id=None):
+    data = db.session.query(
+        Medicine.id,
+        Medicine.name,
+        Medicine.unit_id,
+        Medicine.price,
+        Medicine.inventory_quantity,
+    )
+    if mediciane_id:
+        data = data.filter(Medicine.mediciane_id == mediciane_id)
+    return data.all()

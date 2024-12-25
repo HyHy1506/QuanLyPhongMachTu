@@ -6,7 +6,7 @@ from models import UserType,User
 from flask_login import current_user,login_user,logout_user
 import cloudinary.uploader
 from datetime import datetime
-from phongmachapp.dao.dao_doctor import get_patient_list, get_history_patient
+from phongmachapp.dao.dao_doctor import get_patient_list, get_history_patient, get_medicine
 from phongmachapp.dao.dao_user_patient import get_history_register_examination_by_user_id, get_history_examination, \
     add_waiting_list
 from phongmachapp.utilities import FunctionUserPatientEnum
@@ -94,7 +94,7 @@ def doctor():
 
     return render_template('doctor.html',report=report)
 
-@app.route('/history-patient')
+@app.route('/history_patient')
 def history_patient():
     # neu chua dang nhap
     if not current_user.is_authenticated:
@@ -124,6 +124,20 @@ def history_patient():
     # --------------------------------
 
     return render_template('history_patient.html',report=report)
+
+@app.route('/history_patient/add_medicine')
+def add_medicine(mediciane_id=None):
+    if not current_user.is_authenticated:
+        return redirect('/')
+
+        # neu khong phai bac si
+    if current_user.user_type != UserType.BAC_SI:
+        return redirect('/')
+
+    patient_id = request.args.get('id')
+    report = get_medicine(mediciane_id)
+
+    return render_template('add_medicine.html', report=report)
 
 @app.route('/nurse', methods=['GET', 'POST'])
 def nurse():
