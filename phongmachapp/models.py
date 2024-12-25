@@ -40,6 +40,7 @@ class User(db.Model, UserMixin):
     password = Column(String(50), nullable=False)
     full_name = Column(String(255), nullable=False)
     is_male = Column(Boolean, default=True)
+    year_of_birth = Column(Integer, default=2000)
     phone_number = Column(String(50), nullable=False)
     email = Column(String(100), nullable=False, unique=True)
     user_type = Column(Enum(UserType), nullable=False, default=UserType.NGUOI_DUNG)
@@ -189,7 +190,9 @@ if __name__ == '__main__':
                 phone_number=fake.phone_number(),
                 email=fake.unique.email(),
                 user_type=random.choice(list(UserType)),
-                is_male=random.choice([True, False])
+                is_male=random.choice([True, False]),
+                year_of_birth = fake.year()
+
             )
             users.append(user)
         db.session.add_all(users)

@@ -44,8 +44,8 @@ class AuthenticateAdminBaseView(BaseView):
     def is_accessible(self):
         return current_user.is_authenticated and current_user.user_type == UserType.QUAN_TRI_VIEN
 class UserView(AuthenticateAdminView):
-    column_list = ["id", "username", "full_name", "is_male", "phone_number", "email", "user_type", "avatar"]
-    form_columns = ["username", "password", "full_name", "is_male", "phone_number", "email", "user_type", "avatar"]
+    column_list = ["id", "username", "full_name", "is_male","year_of_birth", "phone_number", "email", "user_type", "avatar"]
+    form_columns = ["username", "password", "full_name", "is_male","year_of_birth", "phone_number", "email", "user_type", "avatar"]
     column_searchable_list = ["username", "full_name", "email", "phone_number"]
     column_filters = ["user_type", "is_male"]
     # Định dạng cột avatar để hiển thị hình ảnh
