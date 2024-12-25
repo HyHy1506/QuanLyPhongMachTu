@@ -29,7 +29,6 @@ def get_medicine(mediciane_id=None):
     data = db.session.query(
         Medicine.id,
         Medicine.name,
-        Medicine.unit_id,
         Medicine.price,
         Medicine.inventory_quantity,
     )
@@ -105,7 +104,10 @@ def get_medicine_by_medical_examination_form_id(medical_examination_id=None):
 
     ).select_from(MedicalExaminationFormDetail)\
     .join(Medicine,Medicine.id==MedicalExaminationFormDetail.medicine_id)\
-    .join(Unit,Unit.id== Medicine.unit_id)
+    .join(Unit,Unit.id== MedicalExaminationFormDetail.unit_id)\
+    .order_by(
+        MedicalExaminationFormDetail.id.desc()
+    )
     if medical_examination_id:
         data=data.filter(
             MedicalExaminationFormDetail.medical_examination_form_id==medical_examination_id
@@ -125,3 +127,68 @@ def get_medicine_by_medical_examination_form_id(medical_examination_id=None):
         for item in result
     ]
     return medicine
+
+def get_unit(unit_id=None):
+    data=db.session.query(
+        Unit.id,
+        Unit.name
+    ).select_from(Unit)
+    if unit_id:
+        data=data.filter(
+            Unit.id==unit_id
+        )
+    result= data.all()
+    units = [
+        {
+            "id":unit[0],
+            "name":unit[1],
+        }
+        for unit in result
+    ]
+    return  units
+
+def create_new_medical_examination_form_detail(
+        quantity=None,
+        unit_id=None,
+        how_to_use=None,
+        medical_examination_form_id=None,
+        medicine_id=None,
+):
+    if quantity and unit_id and how_to_use and medicine_id and medical_examination_form_id:
+        medical_examination_form_detail= MedicalExaminationFormDetail(
+            quantity=quantity,
+            unit_id=unit_id,
+            how_to_use=how_to_use,
+            medical_examination_form_id=medical_examination_form_id,
+            medicine_id=medicine_id,
+        )
+        db.session.add(medical_examination_form_detail)
+        db.session.commit()
+
+
+from phongmachapp import db
+from phongmachapp.models import MedicalExaminationForm  # Đảm bảo bạn đã import mô hình
+
+
+def update_medical_examination_form(
+        symptom=None,
+        predicted_disease=None,
+        medical_examination_form_id=None,
+):
+    if medical_examination_form_id:
+        # Tìm bản ghi MedicalExaminationForm dựa trên medical_examination_form_id
+        medical_form = db.session.query(MedicalExaminationForm).filter_by(id=medical_examination_form_id).first()
+
+        if medical_form:
+            # Cập nhật các thuộc tính nếu chúng được cung cấp
+            if symptom is not None:
+                medical_form.symptom = symptom
+            if predicted_disease is not None:
+                medical_form.predicted_disease = predicted_disease
+
+            # Lưu thay đổi vào cơ sở dữ liệu
+            db.session.commit()
+            return True  # Trả về True nếu cập nhật thành công
+        else:
+            return False  # Trả về False nếu không tìm thấy bản ghi
+    return False  # Trả về False nếu không có medical_examination_form_id

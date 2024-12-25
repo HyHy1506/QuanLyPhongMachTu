@@ -59,10 +59,10 @@ class UserView(AuthenticateAdminView):
 
 
 class MedicineView(AuthenticateAdminView):
-    column_list = ["id", "name", "unit_id", "price", "inventory_quantity"]
-    form_columns = ["name", "unit_id", "price", "inventory_quantity"]
+    column_list = ["id", "name", "price", "inventory_quantity"]
+    form_columns = ["name", "price", "inventory_quantity"]
     column_searchable_list = ["name"]
-    column_filters = ["unit_id"]
+    column_filters = ["name"]
 
 
 class PatientListView(AuthenticateAdminView):
@@ -90,10 +90,10 @@ class MedicalExaminationFormView(AuthenticateAdminView):
     column_filters = ["appointment_date", "doctor_id", "patient_id"]
 
 class MedicalExaminationFormDetailView(AuthenticateAdminView):
-    column_list = ["id", "quantity", "how_to_use", "medical_examination_form_id", "medicine_id"]
-    form_columns = ["quantity", "how_to_use", "medical_examination_form_id", "medicine_id"]
+    column_list = ["id", "quantity", "how_to_use", "medical_examination_form_id", "medicine_id", "unit_id"]
+    form_columns = ["quantity", "how_to_use", "medical_examination_form_id", "medicine_id", "unit_id"]
     column_searchable_list = ["how_to_use"]
-    column_filters = ["medicine_id", "medical_examination_form_id"]
+    column_filters = ["medicine_id", "medical_examination_form_id", "unit_id"]
 
 class PatientListDetailView(AuthenticateAdminView):
     column_list = ["id", "patient_list_id", "user_id"]

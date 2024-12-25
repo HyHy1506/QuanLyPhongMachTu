@@ -89,6 +89,7 @@ class MedicalExaminationFormDetail(db.Model):
     __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, autoincrement=True)
     quantity = Column(Integer, default=1, nullable=False)
+    unit_id = Column(Integer, ForeignKey('unit.id'), default=1)
     how_to_use = Column(String(255), nullable=False)
     medical_examination_form_id = Column(Integer, ForeignKey('medical_examination_form.id'), nullable=False)
     medicine_id = Column(Integer, ForeignKey('medicine.id'), nullable=False)
@@ -99,7 +100,6 @@ class Medicine(db.Model):
     __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
-    unit_id = Column(Integer, ForeignKey('unit.id'), default=1)
     price = Column(Float, nullable=False)
     inventory_quantity = Column(Integer, default=0, nullable=False)
 
@@ -215,7 +215,6 @@ if __name__ == '__main__':
         for _ in range(20):
             medicine = Medicine(
                 name=fake.unique.word(),
-                unit_id=random.choice([pl for pl in units]),
                 price=round(random.uniform(1, 100), 2),
                 inventory_quantity=random.randint(0, 500)
             )
@@ -251,9 +250,10 @@ if __name__ == '__main__':
 
         # Add Medical Examination Form Details
         form_details = []
-        for _ in range(120):
+        for _ in range(200):
             form_detail = MedicalExaminationFormDetail(
                 quantity=random.randint(1, 10),
+                unit_id=random.choice([pl for pl in units]),
                 how_to_use=fake.sentence(),
                 medical_examination_form_id=random.choice([pl.id for pl in medical_forms]),
                 medicine_id=random.choice([med.id for med in medicines])
@@ -283,11 +283,22 @@ if __name__ == '__main__':
         # Add Patient List Details
         patient_list_details = []
         for _ in range(120):
-            detail = PatientListDetail(
-                patient_list_id=random.choice([pl.id for pl in patient_lists]),
-                user_id=random.choice([user.id for user in users if user.user_type == UserType.NGUOI_DUNG])
-            )
-            patient_list_details.append(detail)
-        db.session.add_all(patient_list_details)
-        db.session.commit()
+            patient_list_id = random.choice([pl.id for pl in patient_lists])
+            user_id = random.choice([user.id for user in users if user.user_type == UserType.NGUOI_DUNG])
+
+            # Kiểm tra xem cặp đã tồn tại chưa
+            if not db.session.query(PatientListDetail).filter_by(patient_list_id=patient_list_id,
+                                                                 user_id=user_id).first():
+                detail = PatientListDetail(
+                    patient_list_id=patient_list_id,
+                    user_id=user_id
+                )
+                patient_list_details.append(detail)
+                db.session.add(detail)
+                db.session.commit()
+
+
+
+        # db.session.add_all(patient_list_details)
+        # db.session.commit()
     pass
