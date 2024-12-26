@@ -44,10 +44,19 @@ def add_new_user(username, passwd, full_name, phone_number, email):
     except Exception as e:
         return False,str(e)
 
-def update_user(user_id,avatar=None):
-    if avatar:
-        user=get_user_by_id(user_id)
-        user.avatar = avatar
+def update_user(user_id,avatar=None,full_name=None,username=None,phone_number=None,email=None):
+    user = get_user_by_id(user_id)
+    if user:
+        if avatar:
+            user.avatar = avatar
+        if full_name:
+            user.full_name = full_name
+        if username:
+            user.username = username
+        if phone_number:
+            user.phone_number = phone_number
+        if email:
+            user.email = email
         try:
             db.session.commit()
             return True, None

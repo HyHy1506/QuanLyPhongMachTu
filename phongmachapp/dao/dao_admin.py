@@ -84,7 +84,12 @@ def monthly_medicine(month=None,year=None):
           MedicalExaminationFormDetail.medical_examination_form_id == medical_examination_form_filter_month.c.id)\
     .join(Medicine,Medicine.id == MedicalExaminationFormDetail.medicine_id)\
     .join(Unit,Unit.id == MedicalExaminationFormDetail.unit_id)\
-    .group_by(MedicalExaminationFormDetail.medicine_id)\
+    .group_by(
+        MedicalExaminationFormDetail.medicine_id,
+        Medicine.name,
+        Unit.name,
+
+    )\
 
 
     return data.all()

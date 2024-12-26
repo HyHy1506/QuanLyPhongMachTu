@@ -337,10 +337,22 @@ def user_patient():
 def info_current_user():
     if request.method.__eq__('POST'):
         avatar = request.files['avatar']
+        username = request.form.get('username')
+        full_name = request.form.get('full_name')
+        phone_number = request.form.get('phone_number')
+        email = request.form.get('email')
         if avatar:
             res = cloudinary.uploader.upload(avatar)
             avatar_path = res['secure_url']
-            update_user(current_user.id, avatar_path)
+            update_user(user_id= current_user.id,
+                        avatar=avatar_path,
+                        username=username,
+                        full_name=full_name,
+                        phone_number=phone_number,
+                        email=email,
+
+
+                        )
 
     return render_template("info_user.html")
 
