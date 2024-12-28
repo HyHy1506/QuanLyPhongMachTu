@@ -11,12 +11,13 @@ from phongmachapp.dao.dao_doctor import get_patient_list, get_history_patient, g
     get_full_medical_examination_form_by_medical_examination_form, \
     get_medicine_by_medical_examination_form_id, get_unit,\
     create_new_medical_examination_form_detail,\
-    update_medical_examination_form
+    update_medical_examination_form,get_payment_by_medical_examination_form_id,\
+    create_payment_invoice
 from phongmachapp.dao.dao_user_patient import get_history_register_examination_by_user_id, get_history_examination, \
     add_waiting_list
 from phongmachapp.utilities import FunctionUserPatientEnum
 from sqlalchemy import func
-
+from phongmachapp.utilities import *
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -155,6 +156,8 @@ def edit_medical_examination_form():
     medicine_report = get_medicine_by_medical_examination_form_id(
         medical_examination_id=medical_examination_form_id
     )
+    payment_invoice=get_payment_by_medical_examination_form_id(medical_examination_form_id)
+    can_export_payment=False if payment_invoice else True
     units = get_unit()
     medicines = get_medicine()
     # --------------------------------
@@ -165,7 +168,11 @@ def edit_medical_examination_form():
                            medicine_report=medicine_report,
                            units=units,
                            medicines=medicines,
+                           can_export_payment=can_export_payment,
+                           payment_invoice=payment_invoice,
+                           medical_fee=format_number(app.config['MEDICAL_FEE'])
                            )
+
 
 
 @app.route('/add-medical-form', methods=['POST'])
@@ -186,6 +193,22 @@ def add_medical_form():
         patient_id=patient_id
     )
     return redirect(url_for('medical_examination', patient_id=patient_id))
+@app.route('/create_payment_invoice', methods=['POST'])
+def create_payment_invoice_route():
+    # Lấy dữ liệu từ form
+    medical_fee = request.form.get('pay_medical_fee').replace(',', '')
+    medicine_price = request.form.get('pay_medicine_price').replace(',', '')
+    cashier_id = current_user.id # Bạn cần có trường này trong form hoặc lấy từ session
+    medical_examination_form_id = request.args.get('medical_examination_form_id')
+
+    create_payment_invoice(
+        medical_fee=float(medical_fee),
+        medicine_price=float(medicine_price),
+        cashier_id=cashier_id,
+        medical_examination_form_id=medical_examination_form_id,
+    )
+
+    return redirect(url_for('edit_medical_examination_form', medical_examination_form_id=medical_examination_form_id))
 
 
 @app.route('/add_medicine_to_medical_examination_form', methods=['POST'])

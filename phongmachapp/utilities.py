@@ -6,3 +6,6 @@ class FunctionUserPatientEnum(enum.Enum):
     HISTORY_REGISTER = "HISTORY_REGISTER"
     HISTORY_EXAMINATION = "HISTORY_EXAMINATION"
     NOTIFICATION = "NOTIFICATION"
+
+def format_number(number):
+    return "{:,.0f}".format(number)
