@@ -59,7 +59,7 @@ def day_revenue(day =None,month=None,year=None):
         .order_by(func.date(MedicalExaminationForm.appointment_date)))
     return data.all()
 
-def monthly_medicine(month=None,year=None):
+def monthly_medicine(month=None,year=None, page=None):
     medical_examination_form_filter_month=db.session.query(
         MedicalExaminationForm.id,
     ).order_by(func.date(MedicalExaminationForm.appointment_date))
@@ -89,8 +89,11 @@ def monthly_medicine(month=None,year=None):
         Medicine.name,
         Unit.name,
 
-    )\
-
-
-    return data.all()
+    )
+    total=data.count()
+    if page:
+        page_size = app.config['PAGE_SIZE']
+        start = (int(page) - 1) * page_size
+        data = data.slice(start, start + page_size)
+    return data.all(),total
 

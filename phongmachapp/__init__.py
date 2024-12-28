@@ -18,7 +18,7 @@ cloudinary.config(
 
 app.config['NUM_PATIENT_PER_DAY']=40
 app.config['MEDICAL_FEE']=100000
-
+app.config['PAGE_SIZE'] = 7
 medical_fee=app.config['MEDICAL_FEE']
 num_patient_per_day=app.config['NUM_PATIENT_PER_DAY']
 

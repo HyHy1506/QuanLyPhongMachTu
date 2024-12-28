@@ -26,26 +26,26 @@
         </div>
 
 
-        <table class="table">
-            <thead>
-            <tr>
-                <th>Ngày</th>
-                <th>Tên bệnh nhân</th>
-                <th>Tiền khám</th>
-                <th>Tiền thuốc</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for row in report %}
-                <tr>
-                    <td>{{ row[0] }}</td>
-                    <td>{{ row[1] }}</td>
-                    <td>{{ row[2] }} VND</td>
-                    <td>{{ row[3] }} VND</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+{#        <table class="table">#}
+{#            <thead>#}
+{#            <tr>#}
+{#                <th>Ngày</th>#}
+{#                <th>Tên bệnh nhân</th>#}
+{#                <th>Tiền khám</th>#}
+{#                <th>Tiền thuốc</th>#}
+{#            </tr>#}
+{#            </thead>#}
+{#            <tbody>#}
+{#            {% for row in report %}#}
+{#                <tr>#}
+{#                    <td>{{ row[0] }}</td>#}
+{#                    <td>{{ row[1] }}</td>#}
+{#                    <td>{{ row[2] }} VND</td>#}
+{#                    <td>{{ row[3] }} VND</td>#}
+{#                </tr>#}
+{#            {% endfor %}#}
+{#            </tbody>#}
+{#        </table>#}
 
     {% endif %}
 

@@ -9,6 +9,7 @@ from markupsafe import Markup
 from wtforms_sqlalchemy.fields import QuerySelectField
 from wtforms import validators
 import json
+import math
 from phongmachapp.models import User,Medicine,MedicalExaminationForm,MedicalExaminationFormDetail,PatientListDetail,PatientList,PaymentInvoice,Unit
 
 class MyAdminIndexView(AdminIndexView):
@@ -131,27 +132,40 @@ class MonthlyRevenueView(AuthenticateAdminBaseView):
                            ,list_revenues=list_revenues
                            ,list_day=list_day
                            ,list_quantity_patient=list_quantity_patient)
+
+
 class MonthlyMedicineView(AuthenticateAdminBaseView):
-    @expose("/",methods=['GET','POST'])
+    @expose("/", methods=['GET', 'POST'])
     def index(self):
         list_month = list(range(1, 13))
         list_year = list(range(2010, 2025))
         list_year.reverse()
+
         selected_month = 11
         selected_year = 2024
+
+        page = request.args.get("page", 1, type=int)  #
+
         if request.method == "POST":
             selected_month = request.form.get("month")
             selected_year = request.form.get("year")
-        report = monthly_medicine(month=selected_month, year=selected_year)
 
+        report, total = monthly_medicine(month=selected_month, year=selected_year, page=page)
+
+        pages = math.ceil(total / app.config['PAGE_SIZE'])
 
         return self.render("admin/monthly_medicine.html",
                            list_month=list_month,
-                           list_year = list_year,
-                           selected_month = selected_month,
-                           selected_year = selected_year,
+                           list_year=list_year,
+                           selected_month=selected_month,
+                           selected_year=selected_year,
                            report=report,
-                          )
+                           pages=pages,
+                           current_page=page,  # Truyền trang hiện tại cho template
+                        total=total
+                           )
+
+
 
 
 class LogoutView(AuthenticateAdminBaseView):

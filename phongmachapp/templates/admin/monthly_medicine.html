@@ -1,16 +1,16 @@
 {% extends 'admin/master.html' %}
 
 {% block body %}
-<style>
+    <style>
 
-</style>
+    </style>
 
     {% if current_user.is_authenticated %}
 
         <div class="row">
             <div class="col-12">
-            <h1>BÁO CÁO SỬ DỤNG THUỐC THEO THÁNG</h1>
-            <form method="post">
+                <h1>BÁO CÁO SỬ DỤNG THUỐC THEO THÁNG</h1>
+                <form method="post">
                     <label>Tháng : </label>
                     <select class="form-select" name="month" id="month">
                         {% for i in list_month %}
@@ -30,7 +30,8 @@
                 <table class="table">
                     <thead>
                     <tr>
-                        <th>Mã thuốc</th>
+                        <th>STT</th>
+
                         <th>Tên thuốc</th>
                         <th>Đơn vị</th>
                         <th>Số lượng</th>
@@ -40,7 +41,8 @@
                     <tbody>
                     {% for row in report %}
                         <tr>
-                            <td>{{ row[0] }}</td>
+                            <td>{{ loop.index }}</td>
+
                             <td>{{ row[1] }}</td>
                             <td>{{ row[2] }}</td>
                             <td>{{ row[3] }}</td>
@@ -52,79 +54,88 @@
                 </table>
 
 
-
             </div>
+            <div class="col-12">
+                {% if pages > 1 %}
+                    <ul class="pagination mt-1">
+                        {% for i in range(1, pages + 1) %}
+                            <li class="page-item {% if i == current_page %}active{% endif %}">
+                                <a class="page-link" href="/admin/monthlymedicineview/?page={{ i }}">{{ i }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
             <div class="col-12">
                 <canvas id="quantityChart"></canvas>
             </div>
-        <div class="col-12">
-            <canvas id="numUseChart"></canvas>
-        </div>
+            <div class="col-12">
+                <canvas id="numUseChart"></canvas>
+            </div>
         </div>
 
 
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
         <script>
-         var monthSelect = document.getElementById("month");
+            var monthSelect = document.getElementById("month");
             var yearSelect = document.getElementById("year");
             monthSelect.value = {{ selected_month }};
             yearSelect.value = {{ selected_year }};
-            let listNameMedicine=[]
-         let listQuantity=[]
-         let listNumUse=[]
-         {#them then thuoc#}
-         {% for item in report %}
-             listNameMedicine.push('{{ item[1] }}')
-             listQuantity.push({{ item[3] }})
-             listNumUse.push({{ item[4] }})
+            let listNameMedicine = []
+            let listQuantity = []
+            let listNumUse = []
+            {#them then thuoc#}
+            {% for item in report %}
+                listNameMedicine.push('{{ item[1] }}')
+                listQuantity.push({{ item[3] }})
+                listNumUse.push({{ item[4] }})
 
-         {% endfor %}
+            {% endfor %}
             document.addEventListener("DOMContentLoaded", function () {
-                            const ctx1 = document.getElementById('quantityChart');
+                const ctx1 = document.getElementById('quantityChart');
 
 
-
-                            new Chart(ctx1, {
-                                type: 'bar',
-                                data: {
-                                    labels: listNameMedicine,
-                                    datasets: [{
-                                        label: 'số lượng',
-                                        data: listQuantity,
-                                        borderWidth: 1
-                                    }]
-                                },
-                                options: {
-                                    scales: {
-                                        y: {
-                                            beginAtZero: true
-                                        }
-                                    }
-                                }
-                            });
-                            const ctx2 = document.getElementById('numUseChart');
-
+                new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: listNameMedicine,
+                        datasets: [{
+                            label: 'số lượng',
+                            data: listQuantity,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                const ctx2 = document.getElementById('numUseChart');
 
 
-                            new Chart(ctx2, {
-                                type: 'bar',
-                                data: {
-                                    labels: listNameMedicine,
-                                    datasets: [{
-                                        label: 'số lần dùng',
-                                        data: listNumUse,
-                                        borderWidth: 1
-                                    }]
-                                },
-                                options: {
-                                    scales: {
-                                        y: {
-                                            beginAtZero: true
-                                        }
-                                    }
-                                }
-                            });
+                new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: listNameMedicine,
+                        datasets: [{
+                            label: 'số lần dùng',
+                            data: listNumUse,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
             });
         </script>
 
