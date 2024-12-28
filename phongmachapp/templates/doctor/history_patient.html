@@ -14,7 +14,7 @@
             </li>
         </ul>
         <h1>Lịch sử bệnh nhân</h1>
-{#        <button id="add-medicine-btn" onclick="location.href='/history_patient/add_medicine'">+ Thêm thuốc</button>#}
+        {#        <button id="add-medicine-btn" onclick="location.href='/history_patient/add_medicine'">+ Thêm thuốc</button>#}
         <table class="table">
             <thead>
             <tr>
@@ -35,5 +35,14 @@
             {% endfor %}
             </tbody>
         </table>
+        {% if pages > 1 %}
+            <ul class="pagination mt-1">
+                {% for i in range(1, pages + 1) %}
+                    <li class="page-item {% if i == current_page %}active{% endif %}">
+                        <a class="page-link" href="/history_patient?patient_id={{ patient_id }}&page={{ i }}">{{ i }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     </div>
 {% endblock %}

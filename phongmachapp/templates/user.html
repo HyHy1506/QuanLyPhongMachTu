@@ -9,29 +9,29 @@
 
 
 
-                        <div class="row ">
-                            <form method="post">
-                                <div class="col-12 mb-3">
+                    <div class="row ">
+                        <form method="post">
+                            <div class="col-12 mb-3">
 
-                                    <h5>Khung giờ khám</h5>
-                                    <select class="form-select" name="time_frame" aria-label="Default select example">
+                                <h5>Khung giờ khám</h5>
+                                <select class="form-select" name="time_frame" aria-label="Default select example">
 
-                                        <option value="0" selected>Sáng</option>
-                                        <option value="1">Chiều</option>
-                                        <option value="2">Tối</option>
-                                    </select>
+                                    <option value="0" selected>Sáng</option>
+                                    <option value="1">Chiều</option>
+                                    <option value="2">Tối</option>
+                                </select>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <h5>Chọn lịch khám</h5>
+                                <input type="date" name="appointment_date">
+                            </div>
+                            <div class="col-12">
+                                <div class="d-grid my-3">
+                                    <button class="btn btn-primary btn-lg" type="submit">Đăng ký khám</button>
                                 </div>
-                                <div class="col-12 mb-3">
-                                    <h5>Chọn lịch khám</h5>
-                                    <input type="date" name="appointment_date">
-                                </div>
-                                <div class="col-12">
-                                    <div class="d-grid my-3">
-                                        <button class="btn btn-primary btn-lg" type="submit">Đăng ký khám</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
+                            </div>
+                        </form>
+                    </div>
 
                 {% elif current_function == FunctionUserPatientEnum.HISTORY_REGISTER %}
                     {% if report_history_register %}
@@ -52,6 +52,16 @@
                             {% endfor %}
                             </tbody>
                         </table>
+                        {% if pages > 1 %}
+                            <ul class="pagination mt-1">
+                                {% for i in range(1, pages + 1) %}
+                                    <li class="page-item {% if i == current_page %}active{% endif %}">
+                                        <a class="page-link"
+                                           href="/user-patient?func=HISTORY_REGISTER&page={{ i }}">{{ i }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
                     {% endif %}
                 {% elif current_function == FunctionUserPatientEnum.HISTORY_EXAMINATION %}
 
@@ -95,15 +105,25 @@
                                     <td>{{ row.predicted_disease }}</td>
                                     <td>{{ row.symptom }}</td>
                                     <td class="text-primary"
-    data-bs-toggle="modal"
-    data-bs-target="#medicinesModal"
-    data-medicines="{{ row.medicines }}">
-    Xem thêm
-</td>
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#medicinesModal"
+                                        data-medicines="{{ row.medicines }}">
+                                        Xem thêm
+                                    </td>
                                 </tr>
                             {% endfor %}
                             </tbody>
                         </table>
+                         {% if pages > 1 %}
+                            <ul class="pagination mt-1">
+                                {% for i in range(1, pages + 1) %}
+                                    <li class="page-item {% if i == current_page %}active{% endif %}">
+                                        <a class="page-link"
+                                           href="/user-patient?func=HISTORY_EXAMINATION&page={{ i }}">{{ i }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
                     {% endif %}
 
                 {% elif current_function == FunctionUserPatientEnum.NOTIFICATION %}
@@ -167,53 +187,53 @@
             </div>
         </div>
     </div>
-   <script>
-   function parseMedicineString(input) {
-    // Tách chuỗi thành các phần tử dựa trên ký tự '&#'
-    const items = input.split('&#');
+    <script>
+        function parseMedicineString(input) {
+            // Tách chuỗi thành các phần tử dựa trên ký tự '&#'
+            const items = input.split('&#');
 
-    // Danh sách để lưu các đối tượng
-    const result = [];
+            // Danh sách để lưu các đối tượng
+            const result = [];
 
-    // Duyệt qua từng phần tử
-    items.forEach(item => {
-        // Tách tên và số lượng dựa trên ký tự '&+&'
-        const parts = item.split('&+&');
+            // Duyệt qua từng phần tử
+            items.forEach(item => {
+                // Tách tên và số lượng dựa trên ký tự '&+&'
+                const parts = item.split('&+&');
 
-        // Kiểm tra xem phần tử có đủ 2 phần không
-        if (parts.length === 2) {
-            const name = parts[0].replace(/&/g, ''); // Loại bỏ ký tự '&'
-            const quantity = parseInt(parts[1].replace(/&/g, ''), 10); // Loại bỏ ký tự '&' và chuyển đổi sang số
+                // Kiểm tra xem phần tử có đủ 2 phần không
+                if (parts.length === 2) {
+                    const name = parts[0].replace(/&/g, ''); // Loại bỏ ký tự '&'
+                    const quantity = parseInt(parts[1].replace(/&/g, ''), 10); // Loại bỏ ký tự '&' và chuyển đổi sang số
 
-            // Thêm đối tượng vào danh sách
-            result.push({ name, quantity });
+                    // Thêm đối tượng vào danh sách
+                    result.push({name, quantity});
+                }
+            });
+
+            return result;
         }
-    });
 
-    return result;
-}
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('medicinesModal');
+            const modalContent = document.getElementById('modalMedicinesContent');
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const modal = document.getElementById('medicinesModal');
-        const modalContent = document.getElementById('modalMedicinesContent');
+            modal.addEventListener('show.bs.modal', function (event) {
+                // Phần tử được kích hoạt
+                const triggerElement = event.relatedTarget;
+                const medicinesData = triggerElement.getAttribute('data-medicines');
 
-        modal.addEventListener('show.bs.modal', function (event) {
-            // Phần tử được kích hoạt
-            const triggerElement = event.relatedTarget;
-            const medicinesData = triggerElement.getAttribute('data-medicines');
+                let medicines = [];
 
-            let medicines = [];
+                try {
+                    medicines = parseMedicineString(medicinesData);
+                } catch (error) {
+                    modalContent.innerHTML = '<p>Dữ liệu không hợp lệ.</p>';
+                    return;
+                }
 
-            try {
-                medicines = parseMedicineString(medicinesData);
-            } catch (error) {
-                modalContent.innerHTML = '<p>Dữ liệu không hợp lệ.</p>';
-                return;
-            }
-
-            // Tạo bảng HTML
-            if (medicines.length > 0) {
-                let tableHTML = `
+                // Tạo bảng HTML
+                if (medicines.length > 0) {
+                    let tableHTML = `
                     <table class="table">
                         <thead>
                             <tr>
@@ -223,24 +243,24 @@
                         </thead>
                         <tbody>
                 `;
-                medicines.forEach(med => {
-                    tableHTML += `
+                    medicines.forEach(med => {
+                        tableHTML += `
                         <tr>
                             <td>${med.name}</td>
                             <td>${med.quantity}</td>
                         </tr>
                     `;
-                });
-                tableHTML += `
+                    });
+                    tableHTML += `
                         </tbody>
                     </table>
                 `;
-                modalContent.innerHTML = tableHTML;
-            } else {
-                modalContent.innerHTML = `<p>${medicinesData}</p>`;
-            }
+                    modalContent.innerHTML = tableHTML;
+                } else {
+                    modalContent.innerHTML = `<p>${medicinesData}</p>`;
+                }
+            });
         });
-    });
-</script>
+    </script>
 
 {% endblock %}

@@ -1,5 +1,5 @@
 from phongmachapp.models import *
-def get_history_register_examination_by_user_id(user_id=None):
+def get_history_register_examination_by_user_id(user_id=None, page=None):
     data=db.session.query(
         func.date( WaitingList.appointment_date),
         WaitingList.time_frame,
@@ -8,10 +8,15 @@ def get_history_register_examination_by_user_id(user_id=None):
     .order_by(func.date( WaitingList.appointment_date).desc())
     if user_id:
         data=data.filter(WaitingList.user_id==user_id)
-    # Lấy tất cả dữ liệu
+
+    total = data.count()
+    if page:
+        page_size = app.config['PAGE_SIZE']
+        start = (int(page) - 1) * page_size
+        data = data.slice(start, start + page_size)
+
     result = data.all()
 
-    # Chuyển đổi time_frame sang chuỗi
     history = [
         {
             "appointment_date": item[0],
@@ -19,9 +24,9 @@ def get_history_register_examination_by_user_id(user_id=None):
         }
         for item in result
     ]
-    return history
+    return history,total
 
-def get_history_examination(user_id=None):
+def get_history_examination(user_id=None,page=None):
     data=db.session.query(
         func.date( MedicalExaminationForm.appointment_date),
         MedicalExaminationForm.predicted_disease,
@@ -31,6 +36,12 @@ def get_history_examination(user_id=None):
     .order_by( func.date( MedicalExaminationForm.appointment_date).desc())
     if user_id:
         data=data.filter(MedicalExaminationForm.patient_id==user_id)
+
+    total = data.count()
+    if page:
+        page_size = app.config['PAGE_SIZE']
+        start = (int(page) - 1) * page_size
+        data = data.slice(start, start + page_size)
 
     result = data.all()
     history = [
@@ -43,7 +54,7 @@ def get_history_examination(user_id=None):
         }
         for item in result
     ]
-    return history
+    return history,total
 
 def get_medicine_by_medical_examination_form_id(medical_examination_id=None):
     data=db.session.query(

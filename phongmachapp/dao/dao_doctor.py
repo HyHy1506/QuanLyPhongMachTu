@@ -2,7 +2,7 @@ from phongmachapp.models import *
 from phongmachapp.utilities import *
 
 
-def get_patient_list(patient_list_id=None):
+def get_patient_list(patient_list_id=None,page=None):
     data = db.session.query(
         func.date(PatientList.appointment_date),
         PatientList.id,
@@ -12,10 +12,16 @@ def get_patient_list(patient_list_id=None):
         .join(PatientListDetail, PatientListDetail.patient_list_id == PatientList.id) \
         .join(User, User.id == PatientListDetail.user_id) \
         .order_by(PatientList.id)
-    return data.all()
+
+    total = data.count()
+    if page:
+        page_size = app.config['PAGE_SIZE']
+        start = (int(page) - 1) * page_size
+        data = data.slice(start, start + page_size)
+    return data.all(),total
 
 
-def get_history_patient(patient_id=None):
+def get_history_patient(patient_id=None,page =None):
     data = db.session.query(
         func.date(MedicalExaminationForm.appointment_date),
         User.full_name,
@@ -26,10 +32,15 @@ def get_history_patient(patient_id=None):
         .order_by(func.date(MedicalExaminationForm.appointment_date))
     if patient_id:
         data = data.filter(MedicalExaminationForm.patient_id == patient_id)
-    return data.all()
+    total = data.count()
+    if page:
+        page_size = app.config['PAGE_SIZE']
+        start = (int(page) - 1) * page_size
+        data = data.slice(start, start + page_size)
+    return data.all(),total
 
 
-def get_medicine(mediciane_id=None):
+def get_medicine(mediciane_id=None,page=None):
     data = db.session.query(
         Medicine.id,
         Medicine.name,
@@ -41,7 +52,7 @@ def get_medicine(mediciane_id=None):
     return data.all()
 
 
-def get_medical_examination_form_by_user_id(user_id=None):
+def get_medical_examination_form_by_user_id(user_id=None,page=None):
     data = db.session.query(
         func.date(MedicalExaminationForm.appointment_date),
         MedicalExaminationForm.id,
@@ -57,7 +68,12 @@ def get_medical_examination_form_by_user_id(user_id=None):
             MedicalExaminationForm.patient_id == user_id
         )
 
-    return data.all()
+    total = data.count()
+    if page:
+        page_size = app.config['PAGE_SIZE']
+        start = (int(page) - 1) * page_size
+        data = data.slice(start, start + page_size)
+    return data.all(),total
 
 
 def create_new_medical_examination_form(appointment_date, symptom, predicted_disease, doctor_id, patient_id):

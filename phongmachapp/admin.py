@@ -161,7 +161,7 @@ class MonthlyMedicineView(AuthenticateAdminBaseView):
                            selected_year=selected_year,
                            report=report,
                            pages=pages,
-                           current_page=page,  # Truyền trang hiện tại cho template
+                           current_page=page,
                         total=total
                            )
 

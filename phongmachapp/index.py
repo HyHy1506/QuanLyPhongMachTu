@@ -81,12 +81,16 @@ def doctor():
     # --------------------------------
 
     # xu ly code o day
-
-    report = get_patient_list()
-
+    page = request.args.get("page", 1, type=int)
+    report,total = get_patient_list(page=page)
+    pages = math.ceil(total / app.config['PAGE_SIZE'])
     # --------------------------------
 
-    return render_template('doctor.html', report=report)
+    return render_template('doctor.html',
+                           report=report,
+                           pages=pages,
+                           current_page=page,
+                           )
 
 
 @app.route('/history_patient')
@@ -102,14 +106,21 @@ def history_patient():
     # --------------------------------
 
     # xu ly code o day
+    page = request.args.get("page", 1, type=int)  #
     patient_id = request.args.get('patient_id')
-    report = get_history_patient(patient_id)
+    report,total = get_history_patient(
+        patient_id=patient_id,
+        page=page
+    )
+    pages = math.ceil(total / app.config['PAGE_SIZE'])
 
     # --------------------------------
 
     return render_template('doctor/history_patient.html',
                            report=report,
                            patient_id=patient_id,
+                           pages=pages,
+                           current_page=page,
                            )
 
 
@@ -126,15 +137,23 @@ def medical_examination():
     # --------------------------------
 
     # xu ly code o day
+    page = request.args.get("page", 1, type=int)
     current_date = datetime.now().strftime('%d-%m-%Y')
     patient_id = request.args.get('patient_id')
-    report = get_medical_examination_form_by_user_id(patient_id)
+    report,total = get_medical_examination_form_by_user_id(
+        user_id= patient_id,
+        page=page
+    )
+    pages = math.ceil(total / app.config['PAGE_SIZE'])
+
     # --------------------------------
 
     return render_template('doctor/medical_examination.html',
                            report=report,
                            patient_id=patient_id,
-                           current_date=current_date
+                           current_date=current_date,
+                           pages=pages,
+                           current_page=page,
                            )
 
 
@@ -260,9 +279,13 @@ def add_medicine(mediciane_id=None):
         return redirect('/')
 
     patient_id = request.args.get('id')
-    report = get_medicine(mediciane_id)
+    report,total = get_medicine(
+        mediciane_id=mediciane_id,
+    )
 
-    return render_template('doctor/add_medicine.html', report=report)
+    return render_template('doctor/add_medicine.html',
+                           report=report,
+                            )
 
 
 @app.route('/nurse', methods=['GET', 'POST'])
@@ -297,6 +320,7 @@ def user_patient():
     # --------------------------------
 
     # xu ly code o day
+    page = request.args.get("page", 1, type=int)
     my_func = FunctionUserPatientEnum.REGISTER_EXAMINATION
     request_func = request.args.get('func')
     try:
@@ -308,18 +332,26 @@ def user_patient():
 
     if request_func_enum == FunctionUserPatientEnum.HISTORY_REGISTER:
         my_func = FunctionUserPatientEnum.HISTORY_REGISTER
-        report_history_register = get_history_register_examination_by_user_id(user_id=current_user.id)
+        report_history_register,total = get_history_register_examination_by_user_id(user_id=current_user.id,
+                                                                                    page=page)
+        pages = math.ceil(total / app.config['PAGE_SIZE'])
         return render_template('user.html',
                                current_function=my_func,
                                report_history_register=report_history_register,
+                               pages=pages,
+                               current_page=page,
                                )
 
     elif request_func_enum == FunctionUserPatientEnum.HISTORY_EXAMINATION:
         my_func = FunctionUserPatientEnum.HISTORY_EXAMINATION
-        report_history_examination = get_history_examination(current_user.id)
+        report_history_examination,total = get_history_examination(user_id= current_user.id,
+                                                                   page=page)
+        pages = math.ceil(total / app.config['PAGE_SIZE'])
         return render_template('user.html',
                                current_function=my_func,
                                report_history_examination=report_history_examination,
+                               pages=pages,
+                               current_page=page,
                                )
 
     elif request_func_enum == FunctionUserPatientEnum.NOTIFICATION:
