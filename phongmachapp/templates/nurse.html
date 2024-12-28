@@ -1,6 +1,197 @@
-{%extends 'layout/base.html'%}
-{%block title%} Y tá {%endblock%}
-{%block content%}
-<h1>Viết trang y tá ở đây</h1>
+{% extends 'layout/base.html' %}
+{% block title %} Y tá {% endblock %}
+{% block content %}
 
-{%endblock%}
+    <div class="container  mt-3">
+        <div class="row">
+            <div class="col-sm-9">
+                <h3>Danh sách chờ </h3>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Stt</th>
+                            <th>Full name</th>
+                            <th>Appointment day</th>
+                            <th>Phone numbers</th>
+                            <th>Email</th>
+                            <th>Select</th>
+
+                        </tr>
+                        </thead>
+                        <tbody id="waiting_list_table">
+                        {% for row in waiting_list %}
+                            <tr>
+                                <td>{{ row.stt }}</td>
+                                <td>{{ row.full_name }}</td>
+                                <td>{{ row.appointment_date }}</td>
+                                <td>{{ row.phone }}</td>
+                                <td>{{ row.email }}</td>
+                                <td>
+                                    <input class="form-check-input" type="checkbox" id="selected{{ row.user_id }}"
+                                           value=""
+                                           aria-label="...">
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-sm-3">
+                <h3>Chức năng</h3>
+                <div class="btn-group mb-3" role="group" aria-label="Button group with nested dropdown">
+                    <select class="form-select" id="yta_functions" name="yta_functions">
+                        <option value="oldest">Oldest date</option>
+                        <option value="lastest">Lastest day</option>
+                        <option value="create_exam_list">Create a medical examination list with selected</option>
+                        <option value="send_notifications">Send notifications to users</option>
+                        <option value="other">...</option>
+                    </select>
+                </div>
+                <div>
+                    <span id="count_selected"></span>
+                    <input type="submit" class="btn btn-primary" id="submit_button" value="Create a patient list"
+                           style="display: none;">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Structure -->
+    <div class="modal fade" id="datetimeModal" tabindex="-1" role="dialog" aria-labelledby="datetimeModalLabel"
+         aria-hidden="true" style="display: none;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="datetimeModalLabel">Select Date and Time</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <form id="datetimeForm">
+                        <div class="form-group">
+                            <label for="datetimeInput">Select Date and Time</label>
+                            <input type="datetime-local" name="appointment_date" class="form-control" id="datetimeInput"
+                                   required>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
+                        </div>
+                    </form>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Thêm Bootstrap JS và jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+
+        function validateCheckboxSelection() {
+            const selectedCheckboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            return selectedCheckboxes.length > 0; // Nếu có ít nhất 1 checkbox được chọn, trả về true
+        }
+
+        // Cập nhật sự kiện khi chọn chức năng trong select dropdown
+        document.getElementById('yta_functions').addEventListener('change', function () {
+            const submitButton = document.getElementById('submit_button');
+            const selectedOption = this.value;
+
+            // Xử lý hiển thị nút submit
+            if (selectedOption === 'create_exam_list') {
+                submitButton.style.display = 'block'; // Hiển thị nút submit
+            } else {
+                submitButton.style.display = 'none'; // Ẩn nút submit
+            }
+        });
+
+        // Sự kiện khi nhấn vào nút "Create a patient list"
+        document.getElementById('submit_button').addEventListener('click', function (event) {
+            // Kiểm tra nếu không có checkbox nào được chọn
+            if (!validateCheckboxSelection()) {
+                event.preventDefault(); // Ngừng hành động submit
+                alert('Please select at least one patient to create a patient list.');
+                return;
+            }
+
+            // Hiển thị modal khi nhấn nút submit và đã chọn checkbox
+            $('#datetimeModal').modal('show');
+        });
+
+        // Xử lý sự kiện submit trong modal
+        document.getElementById('submitBtn').addEventListener('click', function () {
+            const datetimeValue = document.getElementById('datetimeInput').value;
+
+            // Tạo mảng user_id_list từ các checkbox đã được chọn
+            const selectedCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'));
+            const user_id_list = selectedCheckboxes.map(checkbox => checkbox.id.replace('selected', ''));
+
+            if (datetimeValue && user_id_list.length > 0) {
+                // Gửi mảng user_id_list và datetimeValue đến server
+                const formData = new FormData();
+                formData.append('appointment_date', datetimeValue);
+                formData.append('user_ids', user_id_list.join(',')); // Chuyển mảng thành chuỗi phân tách bằng dấu ','
+
+                // Gửi yêu cầu POST tới server
+                fetch('/nurse', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Patient list created successfully!');
+                            $('#datetimeModal').modal('hide'); // Đóng modal
+                            location.reload(); // Tải lại trang sau khi thành công
+                        } else {
+                            alert('An error occurred: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An unexpected error occurred.');
+                    });
+            } else {
+                alert('Please select a valid date and time, and at least one patient.');
+            }
+        });
+
+        // Cập nhật số lượng checkbox đã chọn
+        function attachCheckboxListeners() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const countSelected = document.getElementById('count_selected');
+
+            function updateSelectedCount() {
+                let selectedCount = 0;
+                checkboxes.forEach(function (checkbox) {
+                    if (checkbox.checked) {
+                        selectedCount++;
+                    }
+                });
+                countSelected.textContent = 'Selected: ' + selectedCount;
+            }
+
+            checkboxes.forEach(function (checkbox) {
+                checkbox.addEventListener('change', updateSelectedCount);
+            });
+
+            updateSelectedCount();
+        }
+
+        attachCheckboxListeners();
+    </script>
+
+
+{% endblock %}

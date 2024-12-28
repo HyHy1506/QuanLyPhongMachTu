@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for, session, flash
+from flask import render_template, request, redirect, url_for, session, flash, jsonify
 from phongmachapp import app, login
 from dao.dao_user import add_new_user, check_user_login, get_user_by_id, update_user
 import hashlib
@@ -9,11 +9,13 @@ from datetime import datetime
 from phongmachapp.dao.dao_doctor import get_patient_list, get_history_patient, get_medicine, \
     get_medical_examination_form_by_user_id, create_new_medical_examination_form, \
     get_full_medical_examination_form_by_medical_examination_form, \
-    get_medicine_by_medical_examination_form_id, get_unit,\
-    create_new_medical_examination_form_detail,\
+    get_medicine_by_medical_examination_form_id, get_unit, \
+    create_new_medical_examination_form_detail, \
     update_medical_examination_form
 from phongmachapp.dao.dao_user_patient import get_history_register_examination_by_user_id, get_history_examination, \
     add_waiting_list
+from phongmachapp.dao.dao_yta import get_waiting_user_lastest, get_waiting_user_oldest, get_patient_list_last_id, \
+    add_patient_list, add_patient_list_detail
 from phongmachapp.utilities import FunctionUserPatientEnum
 from sqlalchemy import func
 
@@ -190,7 +192,7 @@ def add_medical_form():
 
 @app.route('/add_medicine_to_medical_examination_form', methods=['POST'])
 def add_medicine_to_medical_examination_form():
-    medical_examination_form_id=request.args.get('medical_examination_form_id')
+    medical_examination_form_id = request.args.get('medical_examination_form_id')
 
     medicine_id = request.form.get('medicine_id')
     unit_id = request.form.get('unit_id')
@@ -206,17 +208,17 @@ def add_medicine_to_medical_examination_form():
     )
     return redirect(url_for('edit_medical_examination_form',
                             medical_examination_form_id=medical_examination_form_id,
-                           ))
+                            ))
+
 
 @app.route('/save_medical_examination_form', methods=['POST'])
 def save_medical_examination_form():
-    medical_examination_form_id=request.args.get('medical_examination_form_id')
+    medical_examination_form_id = request.args.get('medical_examination_form_id')
 
     symptom = request.form.get('symptom')
     predicted_disease = request.form.get('predicted_disease')
 
-
-    result =update_medical_examination_form(
+    result = update_medical_examination_form(
         symptom=symptom,
         predicted_disease=predicted_disease,
         medical_examination_form_id=medical_examination_form_id
@@ -224,7 +226,8 @@ def save_medical_examination_form():
     return redirect(url_for('edit_medical_examination_form',
                             medical_examination_form_id=medical_examination_form_id,
 
-                           ))
+                            ))
+
 
 @app.route('/history_patient/add_medicine')
 def add_medicine(mediciane_id=None):
@@ -253,11 +256,36 @@ def nurse():
 
     # --------------------------------
 
-    # xu ly code o day
+    option = request.args.get('option')
 
+    # Nếu không có `option`, mặc định hiển thị danh sách cũ nhất
+    if option == 'oldest':
+        waiting_list = get_waiting_user_oldest()
+    elif option == 'lastest':
+        waiting_list = get_waiting_user_lastest()
+    else:
+        waiting_list = get_waiting_user_oldest()
+
+    if request.method == 'POST':
+        # Lấy dữ liệu appointment_date từ form
+        appointment_date = request.form.get('appointment_date')
+
+        # Lấy danh sách user_id từ form
+        user_ids = request.form.get('user_ids', '').split(',')
+
+        if not appointment_date or not user_ids:
+            return jsonify({'success': False, 'message': 'Missing required data.'})
+        add_patient_list(appointment_date, current_user.id)
+        last_patient_list_id = get_patient_list_last_id()
+        for user_id in user_ids:
+            add_patient_list_detail(last_patient_list_id, user_id)
+
+        return jsonify({'success': True, 'message': 'Patient list created successfully!'})
     # --------------------------------
-
-    return render_template('nurse.html')
+    return render_template('nurse.html',
+                           waiting_list=waiting_list,
+                           user_id=current_user.id,
+                           )
 
 
 @app.route('/user-patient', methods=['GET', 'POST'])
