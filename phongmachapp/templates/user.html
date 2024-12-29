@@ -114,7 +114,7 @@
                             {% endfor %}
                             </tbody>
                         </table>
-                         {% if pages > 1 %}
+                        {% if pages > 1 %}
                             <ul class="pagination mt-1">
                                 {% for i in range(1, pages + 1) %}
                                     <li class="page-item {% if i == current_page %}active{% endif %}">
@@ -127,7 +127,38 @@
                     {% endif %}
 
                 {% elif current_function == FunctionUserPatientEnum.NOTIFICATION %}
-                    <p>Đang ở trang: Thông báo</p>
+                    {% if notifications %}
+                        <h3 class="text-primary">Thông báo</h3>
+
+                        <div class="row">
+                            {% for row in notifications %}
+                                <div class="col-md-6 col-12 mb-4">
+                                    <div class="card  text-white" style="background: cornflowerblue">
+                                        <!-- Thêm bg-primary để có màu xanh dương và text-white cho chữ trắng -->
+                                        <div class="card-body">
+                                            <p class="card-text">
+                                                Người dùng <em>{{ current_user.full_name }}</em> có 1 lịch hẹn đến khám
+                                                bệnh tại
+                                                <strong>Phòng Mạch tư ĐGĐ</strong> vào ngày
+                                                <u>{{ row.appointment_date.strftime('%d-%m-%Y') }}</u>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        {% if pages > 1 %}
+                            <ul class="pagination mt-1">
+                                {% for i in range(1, pages + 1) %}
+                                    <li class="page-item {% if i == current_page %}active{% endif %}">
+                                        <a class="page-link"
+                                           href="/user-patient?func=NOTIFICATION&page={{ i }}">{{ i }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    {% endif %}
                 {% else %}
                     <p>Không xác định</p>
                 {% endif %}

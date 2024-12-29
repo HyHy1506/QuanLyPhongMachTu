@@ -14,7 +14,7 @@ from phongmachapp.dao.dao_doctor import get_patient_list, get_history_patient, g
     update_medical_examination_form, get_payment_by_medical_examination_form_id, \
     create_payment_invoice
 from phongmachapp.dao.dao_user_patient import get_history_register_examination_by_user_id, get_history_examination, \
-    add_waiting_list
+    add_waiting_list,get_notification
 from phongmachapp.dao.dao_yta import get_waiting_user_lastest, get_waiting_user_oldest, get_patient_list_last_id, \
     add_patient_list, add_patient_list_detail
 from phongmachapp.utilities import FunctionUserPatientEnum
@@ -293,7 +293,15 @@ def user_patient():
 
     elif request_func_enum == FunctionUserPatientEnum.NOTIFICATION:
         my_func = FunctionUserPatientEnum.NOTIFICATION
-        return render_template('user.html', current_function=my_func)
+        notifications,total=get_notification(current_user.id,page)
+        pages = math.ceil(total / app.config['PAGE_SIZE'])
+
+        return render_template('user.html',
+                               current_function=my_func,
+                               pages=pages,
+                               current_page=page,
+                               notifications=notifications
+                               )
 
     else:
         my_func = FunctionUserPatientEnum.REGISTER_EXAMINATION

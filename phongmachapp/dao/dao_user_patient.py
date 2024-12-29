@@ -87,6 +87,33 @@ def add_waiting_list(user_id=None,time_frame=None,appointment_date=None):
         db.session.add(waiting_list)
         db.session.commit()
 
+def get_notification(user_id=None,page =None):
+    data = db.session.query(
+        func.date( PatientList.appointment_date),
+        PatientList.id,
+        PatientListDetail.user_id
+    ).select_from(PatientListDetail)\
+        .join(PatientList,PatientList.id==PatientListDetail.patient_list_id)\
+        .order_by(func.date( PatientList.appointment_date).desc())
+    if user_id:
+        data= data.filter(
+            PatientListDetail.user_id==user_id
+        )
+    total = data.count()
+    if page:
+        page_size = app.config['PAGE_SIZE']
+        start = (int(page) - 1) * page_size
+        data = data.slice(start, start + page_size)
+    result = data.all()
+    noti = [
+        {
+            "appointment_date": item[0],
+            'patient_list_id':item[1],
+            'user_id':item[2],
+        }
+        for item in result
+    ]
+    return noti,total
 
 def from_int_to_time_frame(time_frame_int):
     if time_frame_int:
