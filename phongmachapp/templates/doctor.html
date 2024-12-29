@@ -3,35 +3,61 @@
 {% block content %}
     <div class="container">
         <h1>Danh sách bệnh nhân</h1>
+        <form class="mt-4 mb-4"  action="/pick_date_patient_list" method="post">
+            <div class="row">
+                <div class="col-3">
+            <input class="form-control" name="appointment_date" type="date" value={{ date }}>
+
+                </div>
+                <div class="col-3">
+            <button class="btn  btn-primary">Chọn</button>
+
+                </div>
+            </div>
+        </form>
         <table class="table">
             <thead>
             <tr>
-                <th>Ngày</th>
-                <th>Ma Danh Sach</th>
-                <th>Ma Benh Nhan</th>
-                <th>Ten Benh Nhan</th>
+
+{#                <th>Ngày</th>#}
+{#                <th>Ma Danh Sach</th>#}
+{#                <th>Ma Benh Nhan</th>#}
+                <th>STT</th>
+                <th>Họ tên</th>
+                <th>Giới tính</th>
+                <th>Năm sinh</th>
+                <th>Địa chỉ</th>
+
             </tr>
             </thead>
             <tbody>
             {% for row in report %}
                 <tr>
-                    <td>{{ row[0] }}</td>
-                    <td>{{ row[1] }}</td>
-                    <td>{{ row[2] }} </td>
+{#                    <td>{{ row[0] }}</td>#}
+{#                    <td>{{ row[1] }}</td>#}
+{#                    <td>{{ row[2] }} </td>#}
+                    <td>{{ loop.index }}</td>
                     <td><a href="/medical_examination?patient_id={{ row[2] }}">{{ row[3] }} </a></td>
+                    {% if row[4] %}
+                    <td>Nam </td>
+                        {% else %}
+                        <td>Nữ</td>
+                    {% endif %}
+                    <td>{{ row[5] }} </td>
+                    <td>{{ row[6] }} </td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
-        {% if pages > 1 %}
-            <ul class="pagination mt-1">
-                {% for i in range(1, pages + 1) %}
-                    <li class="page-item {% if i == current_page %}active{% endif %}">
-                        <a class="page-link"
-                           href="/doctor?page={{ i }}">{{ i }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+{#        {% if pages > 1 %}#}
+{#            <ul class="pagination mt-1">#}
+{#                {% for i in range(1, pages + 1) %}#}
+{#                    <li class="page-item {% if i == current_page %}active{% endif %}">#}
+{#                        <a class="page-link"#}
+{#                           href="/doctor?page={{ i }}">{{ i }}</a>#}
+{#                    </li>#}
+{#                {% endfor %}#}
+{#            </ul>#}
+{#        {% endif %}#}
     </div>
 {% endblock %}

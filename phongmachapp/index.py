@@ -67,16 +67,33 @@ def signup():
 def doctor():
     if not current_user.is_authenticated or current_user.user_type != UserType.BAC_SI:
         return redirect('/')
-
     page = request.args.get("page", 1, type=int)
-    report, total = get_patient_list(page=page)
+    date = request.args.get("date")
+    if not date:
+        date = datetime(2024, 11, 10)
+    report, total = get_patient_list(date=date)
     pages = math.ceil(total / app.config['PAGE_SIZE'])
 
     return render_template('doctor.html',
+                           date=date,
                            report=report,
                            pages=pages,
                            current_page=page)
 
+
+@app.route('/pick_date_patient_list',  methods=['POST'])
+def pick_date_patient_list():
+    if not current_user.is_authenticated or current_user.user_type != UserType.BAC_SI:
+        return redirect('/')
+    date= request.form.get('appointment_date')
+    appointment_date = datetime.strptime(date, '%Y-%m-%d')
+    report, total = get_patient_list( date=appointment_date)
+
+
+    return redirect(url_for('doctor',
+                            date=date,
+
+                            ))
 @app.route('/history_patient')
 def history_patient():
     if not current_user.is_authenticated or current_user.user_type != UserType.BAC_SI:

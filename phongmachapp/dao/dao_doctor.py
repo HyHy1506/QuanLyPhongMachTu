@@ -2,17 +2,24 @@ from phongmachapp.models import *
 from phongmachapp.utilities import *
 
 
-def get_patient_list(patient_list_id=None,page=None):
+def get_patient_list(patient_list_id=None,page=None,date=None):
     data = db.session.query(
         func.date(PatientList.appointment_date),
         PatientList.id,
         PatientListDetail.user_id,
         User.full_name,
+        User.is_male,
+        User.year_of_birth,
+        User.address
     ).select_from(PatientList) \
         .join(PatientListDetail, PatientListDetail.patient_list_id == PatientList.id) \
         .join(User, User.id == PatientListDetail.user_id) \
-        .order_by(PatientList.id)
+        .order_by(func.date(PatientList.appointment_date).desc())
 
+    if date:
+        data=data.filter(
+            func.date(PatientList.appointment_date)==date
+        )
     total = data.count()
     if page:
         page_size = app.config['PAGE_SIZE']

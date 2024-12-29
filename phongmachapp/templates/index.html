@@ -18,20 +18,29 @@
                 height: 100%;
                 z-index: 1;">
     </div>
-    <h2 style="font-size: 3rem;
+
+    {% if current_user.is_authenticated %}
+        <h2 style="font-size: 3rem;
                color: white;
                text-align: center;
                position: relative;
                z-index: 2;">
         Chào mừng username:
     </h2>
-    {% if current_user.is_authenticated %}
     <h2 class="text-primary" style="font-size: 3rem;
                color: white;
                text-align: center;
                position: relative;
                z-index: 2;">
         {{ current_user.full_name }}
+    </h2>
+        {% else %}
+        <h2 style="font-size: 3rem;
+               color: white;
+               text-align: center;
+               position: relative;
+               z-index: 2;">
+        Chào mừng đến với Phòng mạch tư ĐGĐ
     </h2>
     {% endif %}
 </div>
