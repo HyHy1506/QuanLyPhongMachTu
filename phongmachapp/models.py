@@ -1,7 +1,8 @@
 import enum
 import hashlib
 from tkinter.font import names
-
+from sqlalchemy import text
+from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, Boolean, DateTime, func, text
 from sqlalchemy.orm import relationship
 from phongmachapp import app, db
@@ -43,6 +44,7 @@ class User(db.Model, UserMixin):
     year_of_birth = Column(Integer, default=2000)
     phone_number = Column(String(50), nullable=False)
     email = Column(String(100), nullable=False, unique=True)
+    address =Column(String(100),default='TP.Hồ Chí Minh')
     user_type = Column(Enum(UserType), nullable=False, default=UserType.NGUOI_DUNG)
     avatar = Column(String(255),
                     default='https://res.cloudinary.com/df5wj9kts/image/upload/v1732882958/awhckz70evr3mmbsgf77.png')
@@ -115,190 +117,153 @@ class PaymentInvoice(db.Model):
     medical_examination_form_id = Column(Integer, ForeignKey('medical_examination_form.id'), nullable=False,primary_key=True)
 
 
+def generate_sample_data():
+    # Xóa dữ liệu cũ
+    db.session.execute(text('DELETE FROM payment_invoice'))
+    db.session.execute(text('DELETE FROM medical_examination_form_detail'))
+    db.session.execute(text('DELETE FROM medical_examination_form'))
+    db.session.execute(text('DELETE FROM patient_list_detail'))
+    db.session.execute(text('DELETE FROM patient_list'))
+    db.session.execute(text('DELETE FROM waitinglist'))
+    db.session.execute(text('DELETE FROM medicine'))
+    db.session.execute(text('DELETE FROM unit'))
+    db.session.execute(text('DELETE FROM users'))
+    db.session.commit()
+
+    # Tạo Units
+    unit1 = Unit(name="Viên")
+    unit2 = Unit(name="Chai")
+    unit3 = Unit(name="Vỉ")
+    unit4 = Unit(name="Ống")
+    unit5 = Unit(name="Gói")
+    unit6 = Unit(name="Hộp")
+    db.session.add_all([unit1, unit2, unit3, unit4, unit5, unit6])
+    db.session.commit()
+
+    # Tạo Users
+    password = str(hashlib.md5("123".encode('utf-8')).hexdigest())
+
+    # Admin
+    admin = User(username="admin", password=password, full_name="Quản trị viên",
+                 phone_number="0123456789", email="admin@gmail.com",
+                 address="123 Nguyễn Văn Cừ, Q.5, TP.HCM", user_type=UserType.QUAN_TRI_VIEN)
+
+    # Bác sĩ
+    doctor1 = User(username="bacsi", password=password, full_name="Nguyễn Văn An",
+                   phone_number="0901234567", email="doctor1@gmail.com",
+                   address="45 CMT8, Q.3, TP.HCM", user_type=UserType.BAC_SI)
+    doctor2 = User(username="doctor2", password=password, full_name="Trần Thị Bình",
+                   phone_number="0901234568", email="doctor2@gmail.com",
+                   address="67 Lê Lợi, Q.1, TP.HCM", user_type=UserType.BAC_SI)
+    doctor3 = User(username="doctor3", password=password, full_name="Phạm Văn Cường",
+                   phone_number="0901234569", email="doctor3@gmail.com",
+                   address="89 Nguyễn Huệ, Q.1, TP.HCM", user_type=UserType.BAC_SI)
+
+    # Y tá
+    nurse1 = User(username="yta", password=password, full_name="Lê Thị Dung",
+                  phone_number="0911234567", email="nurse1@gmail.com",
+                  address="12 Trần Hưng Đạo, Q.5, TP.HCM", user_type=UserType.Y_TA)
+    nurse2 = User(username="nurse2", password=password, full_name="Hoàng Văn Em",
+                  phone_number="0911234568", email="nurse2@gmail.com",
+                  address="34 Hai Bà Trưng, Q.1, TP.HCM", user_type=UserType.Y_TA)
+
+    # Bệnh nhân
+    patient1 = User(username="benhnhan", password=password, full_name="Trương Văn Phi",
+                    phone_number="0921234567", email="patient1@gmail.com",
+                    address="56 Lý Thường Kiệt, Q.10, TP.HCM", user_type=UserType.NGUOI_DUNG)
+    patient2 = User(username="patient2", password=password, full_name="Ngô Thị Giang",
+                    phone_number="0921234568", email="patient2@gmail.com",
+                    address="78 Nguyễn Du, Q.1, TP.HCM", user_type=UserType.NGUOI_DUNG)
+    patient3 = User(username="patient3", password=password, full_name="Đặng Văn Hùng",
+                    phone_number="0921234569", email="patient3@gmail.com",
+                    address="90 Võ Văn Tần, Q.3, TP.HCM", user_type=UserType.NGUOI_DUNG)
+    patient4 = User(username="patient4", password=password, full_name="Bùi Thị Ian",
+                    phone_number="0921234570", email="patient4@gmail.com",
+                    address="123 Điện Biên Phủ, Q.Bình Thạnh, TP.HCM", user_type=UserType.NGUOI_DUNG)
+    patient5 = User(username="patient5", password=password, full_name="Phan Văn Khôi",
+                    phone_number="0921234571", email="patient5@gmail.com",
+                    address="456 Nguyễn Thị Minh Khai, Q.3, TP.HCM", user_type=UserType.NGUOI_DUNG)
+
+    db.session.add_all([admin, doctor1, doctor2, doctor3, nurse1, nurse2,
+                        patient1, patient2, patient3, patient4, patient5])
+    db.session.commit()
+
+    # Tạo Medicines
+    med1 = Medicine(name="Paracetamol", price=15000, inventory_quantity=500)
+    med2 = Medicine(name="Amoxicillin", price=25000, inventory_quantity=400)
+    med3 = Medicine(name="Omeprazole", price=35000, inventory_quantity=300)
+    med4 = Medicine(name="Vitamin C", price=45000, inventory_quantity=600)
+    med5 = Medicine(name="Aspirin", price=12000, inventory_quantity=450)
+    db.session.add_all([med1, med2, med3, med4, med5])
+    db.session.commit()
+
+    # Tạo WaitingList
+    wait1 = WaitingList(time_frame=TimeFrame.SANG, appointment_date=datetime(2024, 3, 1), user_id=patient1.id)
+    wait2 = WaitingList(time_frame=TimeFrame.CHIEU, appointment_date=datetime(2024, 3, 1), user_id=patient2.id)
+    wait3 = WaitingList(time_frame=TimeFrame.TOI, appointment_date=datetime(2024, 3, 2), user_id=patient3.id)
+    wait4 = WaitingList(time_frame=TimeFrame.SANG, appointment_date=datetime(2024, 3, 2), user_id=patient4.id)
+    wait5 = WaitingList(time_frame=TimeFrame.CHIEU, appointment_date=datetime(2024, 3, 3), user_id=patient5.id)
+    db.session.add_all([wait1, wait2, wait3, wait4, wait5])
+    db.session.commit()
+
+    # Tạo PatientList
+    plist1 = PatientList(created_date=datetime(2024, 3, 1), appointment_date=datetime(2024, 3, 1), nurse_id=nurse1.id)
+    plist2 = PatientList(created_date=datetime(2024, 3, 2), appointment_date=datetime(2024, 3, 2), nurse_id=nurse2.id)
+    plist3 = PatientList(created_date=datetime(2024, 3, 3), appointment_date=datetime(2024, 3, 3), nurse_id=nurse1.id)
+    db.session.add_all([plist1, plist2, plist3])
+    db.session.commit()
+
+    # Tạo PatientListDetail
+    pld1 = PatientListDetail(patient_list_id=plist1.id, user_id=patient1.id)
+    pld2 = PatientListDetail(patient_list_id=plist1.id, user_id=patient2.id)
+    pld3 = PatientListDetail(patient_list_id=plist2.id, user_id=patient3.id)
+    pld4 = PatientListDetail(patient_list_id=plist2.id, user_id=patient4.id)
+    pld5 = PatientListDetail(patient_list_id=plist3.id, user_id=patient5.id)
+    db.session.add_all([pld1, pld2, pld3, pld4, pld5])
+    db.session.commit()
+
+    # Tạo MedicalExaminationForm
+    mef1 = MedicalExaminationForm(appointment_date=datetime(2024, 3, 1),
+                                  symptom="Sốt, ho", predicted_disease="Cảm cúm",
+                                  doctor_id=doctor1.id, patient_id=patient1.id)
+    mef2 = MedicalExaminationForm(appointment_date=datetime(2024, 3, 1),
+                                  symptom="Đau đầu", predicted_disease="Thiếu máu não",
+                                  doctor_id=doctor2.id, patient_id=patient2.id)
+    mef3 = MedicalExaminationForm(appointment_date=datetime(2024, 3, 2),
+                                  symptom="Đau bụng", predicted_disease="Viêm dạ dày",
+                                  doctor_id=doctor3.id, patient_id=patient3.id)
+    db.session.add_all([mef1, mef2, mef3])
+    db.session.commit()
+
+    # Tạo MedicalExaminationFormDetail
+    mefd1 = MedicalExaminationFormDetail(quantity=2, unit_id=unit1.id,
+                                         how_to_use="Uống 1 viên sau khi ăn",
+                                         medical_examination_form_id=mef1.id, medicine_id=med1.id)
+    mefd2 = MedicalExaminationFormDetail(quantity=1, unit_id=unit2.id,
+                                         how_to_use="Uống 1 chai mỗi sáng",
+                                         medical_examination_form_id=mef1.id, medicine_id=med2.id)
+    mefd3 = MedicalExaminationFormDetail(quantity=3, unit_id=unit3.id,
+                                         how_to_use="Uống 1 vỉ mỗi tối",
+                                         medical_examination_form_id=mef2.id, medicine_id=med3.id)
+    mefd4 = MedicalExaminationFormDetail(quantity=2, unit_id=unit4.id,
+                                         how_to_use="Uống 1 ống mỗi ngày",
+                                         medical_examination_form_id=mef3.id, medicine_id=med4.id)
+    db.session.add_all([mefd1, mefd2, mefd3, mefd4])
+    db.session.commit()
+
+    # Tạo PaymentInvoice
+    inv1 = PaymentInvoice(medical_fee=100000, medicine_price=150000,
+                          cashier_id=admin.id, medical_examination_form_id=mef1.id)
+    inv2 = PaymentInvoice(medical_fee=100000, medicine_price=200000,
+                          cashier_id=admin.id, medical_examination_form_id=mef2.id)
+    inv3 = PaymentInvoice(medical_fee=100000, medicine_price=250000,
+                          cashier_id=admin.id, medical_examination_form_id=mef3.id)
+    db.session.add_all([inv1, inv2, inv3])
+    db.session.commit()
+
 
 if __name__ == '__main__':
     with app.app_context():
-        # add sample data
-        import random
-        from faker import Faker
-        from datetime import datetime, timedelta
+        generate_sample_data()
+        print("Đã tạo xong dữ liệu mẫu!")
 
-        fake = Faker()
-
-
-        def random_date(start_date, end_date):
-            delta = end_date - start_date
-            random_days = random.randint(0, delta.days)
-            return start_date + timedelta(days=random_days)
-
-
-        db.drop_all()
-        db.create_all()
-        password = str(hashlib.md5("123".encode('utf-8')).hexdigest())
-        user1 = User(
-            username="admin",
-            password=password,
-            full_name="Nguyen Van A",
-            phone_number="0123456789",
-            email="admin@gmail.com",
-            user_type=UserType.QUAN_TRI_VIEN
-        )
-        user2 = User(
-            username="bacsi",
-            password=password,
-            full_name="Nguyen Van B",
-            phone_number="0123456789",
-            email="doctor@gmail.com",
-            user_type=UserType.BAC_SI
-        )
-        user3 = User(
-            username="yta",
-            password=password,
-            full_name="Nguyen Van C",
-            phone_number="0123456789",
-            email="nurse@gmail.com",
-            user_type=UserType.Y_TA
-        )
-        user4 = User(
-            username="benhnhan",
-            password=password,
-            full_name="Nguyen Van D",
-            phone_number="0123456789",
-            email="patient@gmail.com",
-            user_type=UserType.NGUOI_DUNG
-        )
-        db.session.add_all([user1, user2, user3, user4])
-        db.session.commit()
-        # add unit
-        unit1=Unit(name="Chai")
-        unit2=Unit(name="Viên")
-        unit3=Unit(name="Vỉ")
-        db.session.add_all([unit1, unit2, unit3])
-        db.session.commit()
-        # Add Users
-        password = str(hashlib.md5("123".encode('utf-8')).hexdigest())
-        users = []
-        users.append(user1)
-        users.append(user2)
-        users.append(user3)
-        users.append(user4)
-        for _ in range(20):
-            user = User(
-                username=fake.unique.user_name(),
-                password=password,
-                full_name=fake.name(),
-                phone_number=fake.phone_number(),
-                email=fake.unique.email(),
-                user_type=random.choice(list(UserType)),
-                is_male=random.choice([True, False]),
-                year_of_birth = fake.year()
-
-            )
-            users.append(user)
-        db.session.add_all(users)
-        db.session.commit()  # Commit users to the database
-
-        # add waitinglist
-        waiting_list=[]
-        for _ in range(120):
-            waiting=WaitingList(
-                time_frame=random.choice(list(TimeFrame)),
-                appointment_date = random_date(datetime(2024, 1, 1), datetime(2024, 12, 31)),
-                user_id = random.choice([user.id for user in users if user.user_type == UserType.NGUOI_DUNG])
-            )
-            waiting_list.append(waiting)
-        db.session.add_all(waiting_list)
-        db.session.commit()
-        # Add Medicines
-        medicines = []
-        units=[1,2,3]
-        for _ in range(20):
-            medicine = Medicine(
-                name=fake.unique.word(),
-                price=round(random.uniform(1, 100), 2),
-                inventory_quantity=random.randint(0, 500)
-            )
-            medicines.append(medicine)
-        db.session.add_all(medicines)
-        db.session.commit()  # Commit medicines to the database
-
-        # Add Patient Lists
-        patient_lists = []
-        for _ in range(60):
-            patient_list = PatientList(
-                created_date=random_date(datetime(2023, 1, 1), datetime(2024, 12, 31)),
-                appointment_date=random_date(datetime(2024, 1, 1), datetime(2024, 12, 31)),
-                nurse_id=random.choice([user.id for user in users if user.user_type == UserType.Y_TA])
-            )
-            patient_lists.append(patient_list)
-        db.session.add_all(patient_lists)
-        db.session.commit()  # Commit patient lists to the database
-
-        # Add Medical Examination Forms
-        medical_forms = []
-        for _ in range(60):
-            medical_form = MedicalExaminationForm(
-                appointment_date=random_date(datetime(2024, 1, 1), datetime(2024, 12, 31)),
-                symptom=fake.sentence(),
-                predicted_disease=fake.word(),
-                doctor_id=random.choice([user.id for user in users if user.user_type == UserType.BAC_SI]),
-                patient_id=random.choice([user.id for user in users if user.user_type == UserType.NGUOI_DUNG])
-            )
-            medical_forms.append(medical_form)
-        db.session.add_all(medical_forms)
-        db.session.commit()  # Commit medical forms to the database
-
-        # Add Medical Examination Form Details
-        form_details = []
-        for _ in range(200):
-            form_detail = MedicalExaminationFormDetail(
-                quantity=random.randint(1, 10),
-                unit_id=random.choice([pl for pl in units]),
-                how_to_use=fake.sentence(),
-                medical_examination_form_id=random.choice([pl.id for pl in medical_forms]),
-                medicine_id=random.choice([med.id for med in medicines])
-            )
-            form_details.append(form_detail)
-        db.session.add_all(form_details)
-        db.session.commit()  # Commit form details to the database
-
-        # Add Payment Invoices
-        invoices = []
-        used_medical_form_ids = set()  # Set để theo dõi các ID đã được sử dụng
-
-        # Lặp qua tất cả các Medical Examination Forms để đảm bảo không trùng
-        available_medical_form_ids = [form.id for form in medical_forms]
-        for medical_form_id in available_medical_form_ids:
-            invoice = PaymentInvoice(
-                medical_fee=round(random.uniform(50, 500), 2),
-                medicine_price=round(random.uniform(10, 200), 2),
-                cashier_id=random.choice([user.id for user in users if user.user_type == UserType.QUAN_TRI_VIEN]),
-                medical_examination_form_id=medical_form_id
-            )
-            invoices.append(invoice)
-
-        db.session.add_all(invoices)
-        db.session.commit()  # Commit invoices to the database
-
-        # Add Patient List Details
-        patient_list_details = []
-        for _ in range(120):
-            patient_list_id = random.choice([pl.id for pl in patient_lists])
-            user_id = random.choice([user.id for user in users if user.user_type == UserType.NGUOI_DUNG])
-
-            # Kiểm tra xem cặp đã tồn tại chưa
-            if not db.session.query(PatientListDetail).filter_by(patient_list_id=patient_list_id,
-                                                                 user_id=user_id).first():
-                detail = PatientListDetail(
-                    patient_list_id=patient_list_id,
-                    user_id=user_id
-                )
-                patient_list_details.append(detail)
-                db.session.add(detail)
-                db.session.commit()
-
-
-
-        # db.session.add_all(patient_list_details)
-        # db.session.commit()
-    pass
