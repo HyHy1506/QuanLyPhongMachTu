@@ -14,7 +14,7 @@
         <form method="post"
               action="/save_medical_examination_form?medical_examination_form_id={{ medical_examination_form_id }}">
             <div class="row">
-                <div class="col-8">
+                <div class="col-10">
 
                     {% if can_export_payment %}
                         <button type="button" class="btn btn-primary mt-3 mb-3" data-bs-toggle="modal"
@@ -29,14 +29,21 @@
                     {% endif %}
 
                 </div>
-                <div class="col-2">
-                    <button type="button" class="btn btn-outline-success mt-3 mb-3" data-bs-toggle="modal"
-                            data-bs-target="#exportPaymentInvoice">Xuất hóa đơn
-                    </button>
-                </div>
-                <div class="col-2">
-                    <button type="submit" class="btn btn-success mt-3 mb-3">Lưu thông tin</button>
-                </div>
+                {#                <div class="col-2">#}
+                {#                    <button type="button" class="btn btn-outline-success mt-3 mb-3" data-bs-toggle="modal"#}
+                {#                            data-bs-target="#exportPaymentInvoice">Xuất hóa đơn#}
+                {#                    </button>#}
+                {#                </div>#}
+                {% if can_export_payment %}
+                    <div class="col-2">
+                        <button type="submit" class="btn btn-success mt-3 mb-3">Lưu thông tin</button>
+                    </div>
+                {% else %}
+                    <div class="col-2">
+                        <button disabled type="submit" class="btn btn-success mt-3 mb-3">Lưu thông tin</button>
+                    </div>
+                {% endif %}
+
                 <div class="col-12 col-md-6">
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" name="patient_name"
@@ -161,143 +168,144 @@
         </div>
     </div>
     <!-- Modal -->
-    <div class="modal fade" id="exportPaymentInvoice" tabindex="-1" aria-labelledby="exportPaymentInvoiceLabel"
-         aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exportPaymentInvoiceLabel">Hóa đơn thanh toán</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form method="post"
-                      action="/create_payment_invoice?medical_examination_form_id={{ medical_examination_form_id }}"
-                >
-                    <div class="modal-body">
-                        {% if can_export_payment %}
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="mb-3">
-                                        <label for="pay_full_name" class="form-label">Họ tên</label>
-                                        <input type="text" class="form-control" id="pay_full_name"
-                                               name="pay_full_name"
-                                               value="{{ info_medical_examination_form.full_name }}"
-                                               required
-                                               readonly>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="mb-3">
-                                        <label for="pay_appointment_date" class="form-label">Ngày khám</label>
-                                        <input type="text" class="form-control" id="pay_appointment_date"
-                                               name="pay_appointment_date"
-                                               value="{{ info_medical_examination_form.appointment_date }}"
-                                               required
-                                               readonly>
-                                    </div>
-
-                                </div>
-                                <div class="col-6">
-                                    <div class="mb-3">
-                                        <label for="pay_medical_fee" class="form-label">Tiền khám</label>
-                                        <input type="text" class="form-control" id="pay_medical_fee"
-                                               name="pay_medical_fee"
-                                               value="{{ medical_fee }}"
-                                               required
-                                               readonly>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="mb-3">
-                                        <label for="pay_medicine_price" class="form-label">Tiền thuốc</label>
-                                        <input type="text" class="form-control" id="pay_medicine_price"
-                                               name="pay_medicine_price"
-                                               value="0"
-                                               required
-                                               readonly>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <hr width="100%" size="2">
-                            <div>
-                                <h5>Tổng tiền 100,000 vnd</h5>
-                            </div>
-                        {% else %}
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="mb-3">
-                                        <label for="pay_full_name" class="form-label">Họ tên</label>
-                                        <input type="text" class="form-control" id="pay_full_name"
-                                               name="pay_full_name"
-                                               value="{{ payment_invoice.full_name }}"
-                                               required
-                                               readonly>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="mb-3">
-                                        <label for="pay_appointment_date" class="form-label">Ngày khám</label>
-                                        <input type="text" class="form-control" id="pay_appointment_date"
-                                               name="pay_appointment_date"
-                                               value="{{ payment_invoice.appointment_date }}"
-                                               required
-                                               readonly>
-                                    </div>
-
-                                </div>
-                                <div class="col-6">
-                                    <div class="mb-3">
-                                        <label for="pay_medical_fee" class="form-label">Tiền khám</label>
-                                        <input type="text" class="form-control" id="pay_medical_fee"
-                                               name="pay_medical_fee"
-                                               value={{ payment_invoice.medical_fee }}
-                                               required
-                                               readonly>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="mb-3">
-                                        <label for="pay_medicine_price" class="form-label">Tiền thuốc</label>
-                                        <input type="text" class="form-control" id="pay_medicine_price"
-                                               name="pay_medicine_price"
-                                               value={{ payment_invoice.medicine_price }}
-                                               required
-                                               readonly>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <hr width="100%" size="2">
-                            <div>
-                                <h5>Tổng tiền {{ payment_invoice.total_price }} vnd</h5>
-                            </div>
-                        {% endif %}
-
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                        {% if can_export_payment %}
-                            <button type="submit" class="btn btn-primary">Xuất hóa đơn</button>
-                        {% else %}
-                            <button disabled type="submit" class="btn btn-outline-primary">Hóa đơn đã được xuất</button>
-                        {% endif %}
-
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    {#    <div class="modal fade" id="exportPaymentInvoice" tabindex="-1" aria-labelledby="exportPaymentInvoiceLabel"#}
+    {#         aria-hidden="true">#}
+    {#        <div class="modal-dialog modal-lg">#}
+    {#            <div class="modal-content">#}
+    {#                <div class="modal-header">#}
+    {#                    <h5 class="modal-title" id="exportPaymentInvoiceLabel">Hóa đơn thanh toán</h5>#}
+    {#                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>#}
+    {#                </div>#}
+    {#                <form method="post"#}
+    {#                      action="/create_payment_invoice?medical_examination_form_id={{ medical_examination_form_id }}"#}
+    {#                >#}
+    {#                    <div class="modal-body">#}
+    {#                        {% if can_export_payment %}#}
+    {#                            <div class="row">#}
+    {#                                <div class="col-6">#}
+    {#                                    <div class="mb-3">#}
+    {#                                        <label for="pay_full_name" class="form-label">Họ tên</label>#}
+    {#                                        <input type="text" class="form-control" id="pay_full_name"#}
+    {#                                               name="pay_full_name"#}
+    {#                                               value="{{ info_medical_examination_form.full_name }}"#}
+    {#                                               required#}
+    {#                                               readonly>#}
+    {#                                    </div>#}
+    {#                                </div>#}
+    {#                                <div class="col-6">#}
+    {#                                    <div class="mb-3">#}
+    {#                                        <label for="pay_appointment_date" class="form-label">Ngày khám</label>#}
+    {#                                        <input type="text" class="form-control" id="pay_appointment_date"#}
+    {#                                               name="pay_appointment_date"#}
+    {#                                               value="{{ info_medical_examination_form.appointment_date }}"#}
+    {#                                               required#}
+    {#                                               readonly>#}
+    {#                                    </div>#}
+    {##}
+    {#                                </div>#}
+    {#                                <div class="col-6">#}
+    {#                                    <div class="mb-3">#}
+    {#                                        <label for="pay_medical_fee" class="form-label">Tiền khám</label>#}
+    {#                                        <input type="text" class="form-control" id="pay_medical_fee"#}
+    {#                                               name="pay_medical_fee"#}
+    {#                                               value="{{ medical_fee }}"#}
+    {#                                               required#}
+    {#                                               readonly>#}
+    {#                                    </div>#}
+    {#                                </div>#}
+    {#                                <div class="col-6">#}
+    {#                                    <div class="mb-3">#}
+    {#                                        <label for="pay_medicine_price" class="form-label">Tiền thuốc</label>#}
+    {#                                        <input type="text" class="form-control" id="pay_medicine_price"#}
+    {#                                               name="pay_medicine_price"#}
+    {#                                               value="0"#}
+    {#                                               required#}
+    {#                                               readonly>#}
+    {#                                    </div>#}
+    {#                                </div>#}
+    {#                            </div>#}
+    {##}
+    {##}
+    {#                            <hr width="100%" size="2">#}
+    {#                            <div>#}
+    {#                                <h5>Tổng tiền 100,000 vnd</h5>#}
+    {#                            </div>#}
+    {#                        {% else %}#}
+    {#                            <div class="row">#}
+    {#                                <div class="col-6">#}
+    {#                                    <div class="mb-3">#}
+    {#                                        <label for="pay_full_name" class="form-label">Họ tên</label>#}
+    {#                                        <input type="text" class="form-control" id="pay_full_name"#}
+    {#                                               name="pay_full_name"#}
+    {#                                               value="{{ payment_invoice.full_name }}"#}
+    {#                                               required#}
+    {#                                               readonly>#}
+    {#                                    </div>#}
+    {#                                </div>#}
+    {#                                <div class="col-6">#}
+    {#                                    <div class="mb-3">#}
+    {#                                        <label for="pay_appointment_date" class="form-label">Ngày khám</label>#}
+    {#                                        <input type="text" class="form-control" id="pay_appointment_date"#}
+    {#                                               name="pay_appointment_date"#}
+    {#                                               value="{{ payment_invoice.appointment_date }}"#}
+    {#                                               required#}
+    {#                                               readonly>#}
+    {#                                    </div>#}
+    {##}
+    {#                                </div>#}
+    {#                                <div class="col-6">#}
+    {#                                    <div class="mb-3">#}
+    {#                                        <label for="pay_medical_fee" class="form-label">Tiền khám</label>#}
+    {#                                        <input type="text" class="form-control" id="pay_medical_fee"#}
+    {#                                               name="pay_medical_fee"#}
+    {#                                               value={{ payment_invoice.medical_fee }}#}
+    {#                                               required#}
+    {#                                               readonly>#}
+    {#                                    </div>#}
+    {#                                </div>#}
+    {#                                <div class="col-6">#}
+    {#                                    <div class="mb-3">#}
+    {#                                        <label for="pay_medicine_price" class="form-label">Tiền thuốc</label>#}
+    {#                                        <input type="text" class="form-control" id="pay_medicine_price"#}
+    {#                                               name="pay_medicine_price"#}
+    {#                                               value={{ payment_invoice.medicine_price }}#}
+    {#                                               required#}
+    {#                                               readonly>#}
+    {#                                    </div>#}
+    {#                                </div>#}
+    {#                            </div>#}
+    {##}
+    {##}
+    {#                            <hr width="100%" size="2">#}
+    {#                            <div>#}
+    {#                                    <h5>Tổng tiền {{ payment_invoice.total_price }} vnd</h5>#}
+    {#                            </div>#}
+    {#                        {% endif %}#}
+    {##}
+    {#                    </div>#}
+    {#                    <div class="modal-footer">#}
+    {#                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>#}
+    {#                        {% if can_export_payment %}#}
+    {#                            <button type="submit" class="btn btn-primary">Xuất hóa đơn</button>#}
+    {#                        {% else %}#}
+    {#                            <button disabled type="submit" class="btn btn-outline-primary">Hóa đơn đã được xuất</button>#}
+    {#                        {% endif %}#}
+    {##}
+    {#                    </div>#}
+    {#                </form>#}
+    {#            </div>#}
+    {#        </div>#}
+    {#    </div>#}
     <script>
 
         window.onload = function () {
             let sumMedicinePrice = 0
             {% for medicine in medicine_report %}
                 sumMedicinePrice +=  {{ medicine.quantity }}*{{ medicine.price }}
+                console.log(" so luon {{ medicine.quantity }} va gia{{ medicine.price }} ")
             {% endfor %}
-            let input_pay_medicine_price=document.getElementById('pay_medicine_price')
-            input_pay_medicine_price.value=sumMedicinePrice
+            let input_pay_medicine_price = document.getElementById('pay_medicine_price')
+            input_pay_medicine_price.value = sumMedicinePrice
 
         };
     </script>

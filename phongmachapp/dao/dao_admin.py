@@ -89,6 +89,8 @@ def monthly_medicine(month=None,year=None, page=None):
         Medicine.name,
         Unit.name,
 
+    ).order_by(
+        Medicine.id.desc()
     )
     total=data.count()
     if page:

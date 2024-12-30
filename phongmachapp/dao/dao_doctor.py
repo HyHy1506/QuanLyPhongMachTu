@@ -131,8 +131,9 @@ def get_medicine_by_medical_examination_form_id(medical_examination_id=None):
         Unit.name,
         MedicalExaminationFormDetail.quantity,
         MedicalExaminationFormDetail.how_to_use,
-        MedicalExaminationFormDetail.id,
+
         Medicine.price,
+        MedicalExaminationFormDetail.id,
     ).select_from(MedicalExaminationFormDetail) \
         .join(Medicine, Medicine.id == MedicalExaminationFormDetail.medicine_id) \
         .join(Unit, Unit.id == MedicalExaminationFormDetail.unit_id) \
@@ -151,7 +152,7 @@ def get_medicine_by_medical_examination_form_id(medical_examination_id=None):
             'unit_name': item[1],
             'quantity': item[2],
             'how_to_use': item[3],
-            'price': format_number(item[4])
+            'price': item[4]
 
         }
         for item in result
@@ -248,9 +249,9 @@ def get_payment_by_medical_examination_form_id(medical_examination_form_id=None)
     result = {
         'full_name': data[0],
         'appointment_date': data[1],
-        'medical_fee': format_number(data[2]),
-        'medicine_price': format_number(data[3]),
-        'total_price': format_number(data[3] + data[2])  # Sử dụng label để lấy tổng giá trị
+        'medical_fee': (data[2]),
+        'medicine_price': (data[3]),
+        'total_price': (data[3] + data[2])  # Sử dụng label để lấy tổng giá trị
     }
 
     return result
@@ -258,11 +259,11 @@ def get_payment_by_medical_examination_form_id(medical_examination_form_id=None)
 
 def create_payment_invoice(
         medical_fee=None,
-        medicine_price=None,
+        medicine_price=0,
         cashier_id=None,
         medical_examination_form_id=None,
 ):
-    if medical_fee and medicine_price and cashier_id and medical_examination_form_id:
+    if medical_fee  and cashier_id and medical_examination_form_id:
         payment_invoice = PaymentInvoice(
 
             medical_fee=medical_fee,

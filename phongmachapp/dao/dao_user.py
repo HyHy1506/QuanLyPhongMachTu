@@ -23,7 +23,7 @@ def check_user_exist(username,email):
     return False,None
 
 
-def add_new_user(username, passwd, full_name, phone_number, email):
+def add_new_user(username, passwd, full_name, phone_number, email,year_of_birth=None,address=None,is_male=True):
     #  neu da ton tai nguoi dung
     success,error = check_user_exist(username,email)
     if success:
@@ -36,7 +36,10 @@ def add_new_user(username, passwd, full_name, phone_number, email):
         full_name=full_name,
         phone_number=phone_number,
         email=email,
-        user_type=UserType.NGUOI_DUNG
+        user_type=UserType.NGUOI_DUNG,
+        year_of_birth=year_of_birth if year_of_birth else 2000,
+        address=address if address else 'TP.Hồ Chí Minh',
+        is_male=is_male
     )
     try:
         __add_user(user)

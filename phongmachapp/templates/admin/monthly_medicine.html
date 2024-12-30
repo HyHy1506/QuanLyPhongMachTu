@@ -87,7 +87,7 @@
             let listQuantity = []
             let listNumUse = []
             {#them then thuoc#}
-            {% for item in report %}
+            {% for item in report_all %}
                 listNameMedicine.push('{{ item[1] }}')
                 listQuantity.push({{ item[3] }})
                 listNumUse.push({{ item[4] }})

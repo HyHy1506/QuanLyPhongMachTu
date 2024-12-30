@@ -1,0 +1,147 @@
+{% extends 'layout/base.html' %}
+{% block title %}Y tá {% endblock %}
+{% block content %}
+    <div class="container">
+{#      <ul class="nav nav-tabs">#}
+{#            <li class="nav-item">#}
+{#                <a class="nav-link text-secondary  " aria-current="page"#}
+{#                   href="/cashier_handle_payment_invoice">Thanh toán hóa đơn</a>#}
+{#            </li>#}
+{#            <li class="nav-item">#}
+{#                <a class="nav-link text-primary active" href="/cashier_add_new_user_to_waiting_list">Đăng ký khám tại quầy</a>#}
+{#            </li>#}
+{#        </ul>#}
+        <h1>Đăng ký tại quầy</h1>
+ <form method="post" id="form_register" action="/api/add_new_user_to_waiting_list">
+                            <div class="row gy-2 overflow-hidden">
+                                <div class="col-12 col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" name="username" id="username_signup"
+                                               placeholder="Tên đăng nhập" required>
+                                        <label for="username_signup" class="form-label">Tên đăng nhập</label>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="password" class="form-control" name="password" id="password_signup"
+                                               value="" placeholder="Password" required>
+                                        <label for="password_signup" class="form-label">Mật khẩu</label>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" name="full_name"
+                                               id="full_name_signup" placeholder="Tên đầy đủ" required>
+                                        <label for="full_name_signup" class="form-label">Tên đầy đủ</label>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="number" class="form-control" name="phone_number"
+                                               id="phone_number_signup" placeholder="Số điện thoại" required>
+                                        <label for="phone_number_signup" class="form-label">Số điện thoại</label>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="email" class="form-control" name="email"
+                                               id="email_signup" placeholder="Email" required>
+                                        <label for="email_signup" class="form-label">Email</label>
+                                    </div>
+                                </div>
+                            <div class="col-12 col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="number" class="form-control" name="year_of_birth"
+                                               id="year_of_birth" placeholder="Số điện thoại" required>
+                                        <label for="year_of_birth" class="form-label">Năm sinh</label>
+                                    </div>
+                                </div>
+                              <div class="col-12 col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" name="address"
+                                               id="address" placeholder="Số điện thoại" required>
+                                        <label for="address" class="form-label">Địa chỉ</label>
+                                    </div>
+                                </div>
+                             <div class="col-12 col-md-6">
+                                        <label for="is_male" class="form-label">Giới tính</label>
+                                        <select name="is_male" id="is_male" class="form-select" >
+                                            <option value="1">Nam</option>
+                                            <option value="0">Nữ</option>
+                                        </select>
+                                </div>
+
+                                 <div class="col-12 col-md-6 mb-3">
+
+                                <label>Khung giờ khám</label>
+                                <select class="form-select" name="time_frame" aria-label="Default select example">
+
+                                    <option value="0" selected>Sáng</option>
+                                    <option value="1">Chiều</option>
+                                    <option value="2">Tối</option>
+                                </select>
+                            </div>
+                            <div class="col-12 mb-3 col-md-6 ">
+                                <label>Chọn lịch khám</label>
+                                <input class="form-control" type="date" name="appointment_date">
+                            </div>
+                                <div class="col-12">
+                                    <div class="d-grid my-3">
+                                        <button class="btn btn-primary btn-lg" type="submit">Đăng ký</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </form>
+    </div>
+ <script>
+function register() {
+    // Xác nhận trước khi gửi form
+    if (confirm("Bạn muốn đăng ký?") === true) {
+        // Lấy form bằng ID
+        const form = document.getElementById("form_register");
+
+        // Tạo FormData từ form
+        const formData = new FormData(form);
+
+        // Chuyển đổi FormData thành một object
+        const formObject = {};
+        formData.forEach((value, key) => {
+            formObject[key] = value;
+        });
+
+        // Gửi dữ liệu qua fetch
+        fetch('/api/add_new_user_to_waiting_list', {
+            method: "POST",
+            body: JSON.stringify(formObject),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 200) {
+                alert("Đăng ký thành công!");
+                location.reload();
+            } else {
+                alert("Đã xảy ra lỗi: " + data.message);
+            }
+        })
+        .catch(err => {
+            console.error("Error:", err);
+            alert("Đã xảy ra lỗi khi gửi yêu cầu.");
+        });
+    }
+}
+
+// Thay đổi hành vi mặc định của nút submit
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById("form_register");
+    form.addEventListener("submit", (event) => {
+        event.preventDefault(); // Ngăn hành vi submit mặc định
+        register(); // Gọi hàm register
+    });
+});
+</script>
+
+{% endblock %}

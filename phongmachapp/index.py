@@ -1,8 +1,8 @@
 from flask import render_template, request, redirect, url_for, session, flash, jsonify
 from phongmachapp import app, login
-from dao.dao_user import add_new_user, check_user_login, get_user_by_id, update_user
+from phongmachapp.dao.dao_user import add_new_user, check_user_login, get_user_by_id, update_user
 import hashlib
-from models import UserType, User
+from phongmachapp.models import UserType, User
 from flask_login import current_user, login_user, logout_user
 import cloudinary.uploader
 from datetime import datetime
@@ -17,6 +17,7 @@ from phongmachapp.dao.dao_user_patient import get_history_register_examination_b
     add_waiting_list,get_notification
 from phongmachapp.dao.dao_yta import get_waiting_user_lastest, get_waiting_user_oldest, get_patient_list_last_id, \
     add_patient_list, add_patient_list_detail
+from phongmachapp.dao.dao_cashier import cashier_add_new_user,cashier_add_new_waiting_list,cashier_get_medical_examination_form,cashier_get_handle_payment_by_medical_examination_form_id
 from phongmachapp.utilities import FunctionUserPatientEnum
 from sqlalchemy import func
 from phongmachapp.utilities import *
@@ -254,7 +255,7 @@ def nurse():
     elif option == 'lastest':
         waiting_list = get_waiting_user_lastest()
     else:
-        waiting_list = get_waiting_user_oldest()
+        waiting_list = get_waiting_user_lastest()
 
     if request.method == 'POST':
         appointment_date = request.form.get('appointment_date')
@@ -363,6 +364,143 @@ def info_current_user():
                         email=email)
 
     return render_template("info_user.html")
+@app.route('/cashier', methods=['GET', 'POST'])
+def cashier():
+    if not current_user.is_authenticated or current_user.user_type != UserType.THU_NGAN:
+        return redirect('/')
+
+
+    return redirect(url_for('cashier_handle_payment_invoice'))
+
+@app.route('/cashier_handle_payment_invoice', methods=['GET', 'POST'])
+def cashier_handle_payment_invoice():
+    if not current_user.is_authenticated or current_user.user_type != UserType.THU_NGAN:
+        return redirect('/')
+    date = request.args.get('date')
+    if not date:
+        date=datetime(2024,12,10)
+    report= cashier_get_medical_examination_form(date)
+
+    return render_template('cashier/handle_payment_invoice.html',
+                           report=report,
+                           date=date,
+                           )
+@app.route('/pick_date_cashier_handle_payment_invoice',  methods=['POST'])
+def pick_date_cashier_handle_payment_invoice():
+    if not current_user.is_authenticated or current_user.user_type != UserType.THU_NGAN:
+        return redirect('/')
+    date= request.form.get('appointment_date')
+
+
+    return redirect(url_for('cashier_handle_payment_invoice',
+                            date=date,
+                            ))
+
+@app.route("/api/get_handle_payment", methods=["post"])
+def api_get_handle_payment():
+    mef_id=request.json.get("id")
+    payment=cashier_get_handle_payment_by_medical_examination_form_id(mef_id)
+    return jsonify(payment)
+
+
+@app.route("/api/cashier_create_payment_invoice", methods=['POST'])
+def cashier_create_payment_invoice_route():
+    try:
+        medical_fee = request.json.get('pay_medical_fee')
+        medicine_price = request.json.get('pay_medicine_price')
+        cashier_id = current_user.id
+        medical_examination_form_id = request.json.get('medical_examination_form_id')
+
+        # print(str(medical_fee) + " " + str(medicine_price) + " " + str(cashier_id) + " " + str(
+        #     medical_examination_form_id))
+        print(float(medical_fee))
+        print(float(medicine_price))
+        print(cashier_id)
+        print(medical_examination_form_id)
+
+        create_payment_invoice(
+            medical_fee=float(medical_fee),
+            medicine_price=float(medicine_price),
+            cashier_id=cashier_id,
+            medical_examination_form_id=medical_examination_form_id,
+        )
+        return jsonify({'status': 200})
+
+    except Exception as e:
+        print(f"Error: {str(e)}")  # Thêm log để debug
+        return jsonify({'status': 500, 'error': str(e)})
+
+
+@app.route('/nurse_add_new_user_to_waiting_list', methods=['GET', 'POST'])
+def cashier_add_new_user_to_waiting_list():
+    if not current_user.is_authenticated or current_user.user_type != UserType.Y_TA:
+        return redirect('/')
+
+
+    return render_template('nurse/add_new_user_to_waiting_list.html')
+
+
+
+
+
+@app.route('/api/add_new_user_to_waiting_list', methods=['POST'])
+def api_add_new_user_to_waiting_list():
+    # Kiểm tra quyền truy cập
+    if not current_user.is_authenticated or current_user.user_type != UserType.Y_TA:
+        return jsonify({"status": 403, "message": "Không có quyền truy cập."}), 403
+
+    # Lấy dữ liệu từ request
+    data = request.get_json()
+    if not data:
+        return jsonify({"status": 400, "message": "Dữ liệu không hợp lệ."}), 400
+
+    try:
+        # Trích xuất dữ liệu từ JSON
+        username = data.get("username")
+        password = data.get("password")
+        full_name = data.get("full_name")
+        phone_number = data.get("phone_number")
+        email = data.get("email")
+        year_of_birth = data.get("year_of_birth")
+        address = data.get("address")
+        is_male = data.get("is_male")
+        time_frame = data.get("time_frame")
+        appointment_date = data.get("appointment_date")
+
+        # Kiểm tra các trường bắt buộc
+        if not all([username, password, full_name, phone_number, email, year_of_birth, address, time_frame, appointment_date]):
+            return jsonify({"status": 400, "message": "Thiếu thông tin cần thiết."}), 400
+
+        # Kiểm tra username và email trùng lặp
+        existing_user = User.query.filter((User.username == username) | (User.email == email)).first()
+        if existing_user:
+            return jsonify({"status": 400, "message": "Tên đăng nhập hoặc email đã tồn tại."}), 400
+
+        # Chuyển đổi ngày
+        try:
+            appointment_date = datetime.strptime(appointment_date, "%Y-%m-%d").date()
+        except ValueError:
+            return jsonify({"status": 400, "message": "Ngày khám không hợp lệ."}), 400
+
+        # Tạo người dùng mới
+        user,success,error = cashier_add_new_user(
+            username=username,
+            passwd=password,
+            full_name=full_name,
+            phone_number=phone_number,
+            email=email,
+            address=address,
+            year_of_birth=year_of_birth,
+            is_male=is_male if is_male ==1 else False
+        )
+        if user:
+            cashier_add_new_waiting_list(user_id=user.id,time_frame=time_frame,appointment_date=appointment_date)
+        return jsonify({"status": 200, "message": "Đăng ký thành công!", "user_id": user.id}), 200
+
+
+    except Exception as e:
+        return jsonify({"status": 500, "message": f"Lỗi máy chủ: {str(e)}"}), 500
+
 
 @app.route('/logout')
 def logout():

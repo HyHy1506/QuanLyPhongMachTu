@@ -151,7 +151,7 @@ class MonthlyMedicineView(AuthenticateAdminBaseView):
             selected_year = request.form.get("year")
 
         report, total = monthly_medicine(month=selected_month, year=selected_year, page=page)
-
+        report_all,total_all=monthly_medicine(month=selected_month, year=selected_year)
         pages = math.ceil(total / app.config['PAGE_SIZE'])
 
         return self.render("admin/monthly_medicine.html",
@@ -160,6 +160,7 @@ class MonthlyMedicineView(AuthenticateAdminBaseView):
                            selected_month=selected_month,
                            selected_year=selected_year,
                            report=report,
+                           report_all=report_all,
                            pages=pages,
                            current_page=page,
                         total=total

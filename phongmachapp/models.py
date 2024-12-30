@@ -14,6 +14,7 @@ class UserType(str, enum.Enum):
     BAC_SI = "BAC_SI"
     Y_TA = "Y_TA"
     QUAN_TRI_VIEN = "QUAN_TRI_VIEN"
+    THU_NGAN = "THU_NGAN"
 
 #
 # class Unit(enum.Enum):
@@ -118,24 +119,27 @@ class PaymentInvoice(db.Model):
 
 
 def generate_sample_data():
+
     from random import randint, choice
     from sqlalchemy.sql import text
     import random
     from faker import Faker
     from datetime import datetime, timedelta
-    fake = Faker()
+    fake = Faker(['vi_VN'])
     # Clear old data
-    db.session.execute(text('DELETE FROM payment_invoice'))
-    db.session.execute(text('DELETE FROM medical_examination_form_detail'))
-    db.session.execute(text('DELETE FROM medical_examination_form'))
-    db.session.execute(text('DELETE FROM patient_list_detail'))
-    db.session.execute(text('DELETE FROM patient_list'))
-    db.session.execute(text('DELETE FROM waitinglist'))
-    db.session.execute(text('DELETE FROM medicine'))
-    db.session.execute(text('DELETE FROM unit'))
-    db.session.execute(text('DELETE FROM users'))
+    # db.session.execute(text('DELETE FROM payment_invoice'))
+    # db.session.execute(text('DELETE FROM medical_examination_form_detail'))
+    # db.session.execute(text('DELETE FROM medical_examination_form'))
+    # db.session.execute(text('DELETE FROM patient_list_detail'))
+    # db.session.execute(text('DELETE FROM patient_list'))
+    # db.session.execute(text('DELETE FROM waitinglist'))
+    # db.session.execute(text('DELETE FROM medicine'))
+    # db.session.execute(text('DELETE FROM unit'))
+    # db.session.execute(text('DELETE FROM users'))
+    db.drop_all()
     db.session.commit()
-
+    db.create_all()
+    db.session.commit()
     # Create Units
     units = [Unit(name=name) for name in ["Viên", "Chai", "Vỉ", "Ống", "Gói", "Hộp"]]
     db.session.add_all(units)
@@ -166,8 +170,8 @@ def generate_sample_data():
     ]
 
     patients = [
-        User(username=f"patient{i}", password=password, full_name=f"Bệnh nhân {i}",
-             phone_number=f"09212345{i:02}", email=f"patient{i}@gmail.com",
+        User(username=f"patient{i}", password=password, full_name=fake.name(),
+             phone_number=fake.phone_number(), email=f"patient{i}@gmail.com",
              address=f"{i} Lý Thường Kiệt, TP.HCM", user_type=UserType.NGUOI_DUNG,
              year_of_birth=fake.year(), is_male=random.choice([True, False])
              )
@@ -177,18 +181,22 @@ def generate_sample_data():
     db.session.add_all(doctors + nurses + patients)
     db.session.commit()
 
-    doctor1 = User(username="bacsi", password=password, full_name="Bác sĩ 1",
+    doctor1 = User(username="bacsi", password=password, full_name="Bác sĩ An",
                    phone_number="0901234501", email="bs@gmail.com",
                    address="1 Nguyễn Văn Cừ, TP.HCM", user_type=UserType.BAC_SI)
-    nurse1 = User(username="yta", password=password, full_name="Y tá 1",
+    nurse1 = User(username="yta", password=password, full_name="Y tá Binh",
                   phone_number="0911234501", email="yta@gmail.com",
                   address="1 Nguyễn Thị Minh Khai, TP.HCM", user_type=UserType.Y_TA)
-    patient1 = User(username="benhnhan", password=password, full_name="Bệnh nhân 1",
+    patient1 = User(username="benhnhan", password=password, full_name="Bệnh nhân Le",
                     phone_number="0921234501", email="benh@gmail.com",
                     address="1 Lý Thường Kiệt, TP.HCM", user_type=UserType.NGUOI_DUNG)
+    cashier1 = User(username="thungan", password=password, full_name="Thu ngan Van",
+                    phone_number="0921234504", email="thungan@gmail.com",
+                    address="1 Lý Thường Kiệt, TP.HCM", user_type=UserType.THU_NGAN)
     db.session.add(doctor1)
     db.session.add(nurse1)
     db.session.add(patient1)
+    db.session.add(cashier1)
     db.session.commit()
     # Create Medicines
     medicines = [
@@ -200,7 +208,7 @@ def generate_sample_data():
 
     # Monthly data generation
     for month in range(1, 13):
-        for day in range(1, 11):
+        for day in range(1, 29):
             date = datetime(2024, month, day)
 
             # Create WaitingList

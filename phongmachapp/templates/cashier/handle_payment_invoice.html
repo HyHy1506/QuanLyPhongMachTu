@@ -1,0 +1,216 @@
+{% extends 'layout/base.html' %}
+{% block title %}Thu ngân {% endblock %}
+{% block content %}
+    <div class="container">
+{#        <ul class="nav nav-tabs">#}
+{#            <li class="nav-item">#}
+{#                <a class="nav-link text-primary active" aria-current="page"#}
+{#                   href="/cashier_handle_payment_invoice">Thanh toán hóa đơn</a>#}
+{#            </li>#}
+{#            <li class="nav-item">#}
+{#                <a class="nav-link text-secondary" href="/cashier_add_new_user_to_waiting_list">Đăng ký khám tại#}
+{#                    quầy</a>#}
+{#            </li>#}
+{#        </ul>#}
+        <h1>Thanh toán hóa đơn</h1>
+        <form class="mt-4 mb-4" action="/pick_date_cashier_handle_payment_invoice" method="post">
+            <div class="row">
+                <div class="col-3">
+                    <input class="form-control" name="appointment_date" type="date" value={{ date }}>
+
+                </div>
+                <div class="col-3">
+                    <button class="btn  btn-primary">Chọn</button>
+
+                </div>
+            </div>
+        </form>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>STT</th>
+                <th>Ngày</th>
+                <th>Mã Phiếu khám bệnh</th>
+                <th>Tên bệnh nhân</th>
+                <th>Hóa đơn</th>
+                <th>Tình trạng</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in report %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ row.appointment_date }}</td>
+                    <td>
+                        {{ row.id }}
+                    </td>
+                    <td>{{ row.full_name }} </td>
+                    <td class="text-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#paymentInvoiceModal"
+                        data-payment-invoice="{{ row.id }}">
+                        <p class="text-primary ">Xem thêm</p>
+                    </td>
+                    {% if row.payment_invoice %}
+                        <td><p class="text-success fw-bold">Đã thanh toán</p></td>
+                    {% else %}
+                        <td><p class="text-warning fw-bold">Chưa thanh toán</p></td>
+
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="paymentInvoiceModal" tabindex="-1" aria-labelledby="paymentInvoiceModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentInvoiceModalLabel">HÓA ĐƠN THANH TOÁN</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalPaymentInvoiceContent">
+
+                </div>
+                <div class="modal-footer" id="modalPaymentInvoiceFooter">
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    function createPayment(pay_medical_fee,pay_medicine_price,medical_examination_form_id){
+        fetch('/api/cashier_create_payment_invoice', {
+            method: "post",
+            body: JSON.stringify({
+                "pay_medical_fee": pay_medical_fee,
+                "pay_medicine_price": pay_medicine_price,
+                "medical_examination_form_id": medical_examination_form_id
+            }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then(res=>res.json()).then(data=>{
+            if (data['status']===200){
+                 location.reload();
+            }else{
+                alert("ERROR!");
+            }
+        })
+}
+        function getHandlePayment(id, modalContent, modalFooter) {
+
+            fetch('/api/get_handle_payment', {
+                method: "post",
+                body: JSON.stringify({
+                    "id": id,
+                }),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }).then(res => res.json()).then(data => {
+                console.log(data['medicine_price'])
+                if (data['is_pay'] == true) {
+                    modalFooter.innerHTML = `
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng
+                    </button>
+
+                        <button type="button" disabled class="btn btn-outline-primary">Hóa đơn đã được thanh toán
+                        </button>
+
+
+
+                    `
+                } else {
+                    modalFooter.innerHTML = `
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng
+                    </button>
+
+
+
+                        <button type="button" onclick="createPayment(${data['medical_fee']},
+                        ${data['medicine_price']},${id})" class="btn btn-primary"
+                        >Xuất hóa đơn
+                        </button>
+
+                    `
+                }
+
+                modalContent.innerHTML = `<p>${data['full_name']}</p>`;
+                modalContent.innerHTML = `
+
+                        <div class="row">
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label for="pay_full_name" class="form-label">Họ tên</label>
+                                        <input type="text" class="form-control" id="pay_full_name"
+                                               name="pay_full_name"
+                                               value="${data['full_name']}"
+                                               required
+                                               readonly>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label for="pay_appointment_date" class="form-label">Ngày khám</label>
+                                        <input type="text" class="form-control" id="pay_appointment_date"
+                                               name="pay_appointment_date"
+                                               value="${data['appointment_date']}"
+                                               required
+                                               readonly>
+                                    </div>
+
+                                </div>
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label for="pay_medical_fee" class="form-label">Tiền khám</label>
+                                        <input type="text" class="form-control" id="pay_medical_fee"
+                                               name="pay_medical_fee"
+                                               value="${data['medical_fee']}"
+                                               required
+                                               readonly>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label for="pay_medicine_price" class="form-label">Tiền thuốc</label>
+                                        <input type="text" class="form-control" id="pay_medicine_price"
+                                               name="pay_medicine_price"
+                                               value="${data['medicine_price']}"
+                                               required
+                                               readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <hr width="100%" size="2">
+                            <div>
+                                <h5>Tổng tiền ${data['total_price']} VNĐ</h5>
+                            </div>
+
+
+                `
+            })
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('paymentInvoiceModal');
+            const modalContent = document.getElementById('modalPaymentInvoiceContent');
+            const modalFooter = document.getElementById('modalPaymentInvoiceFooter');
+            modal.addEventListener('show.bs.modal', function (event) {
+                // Phần tử được kích hoạt
+                const triggerElement = event.relatedTarget;
+                const paymentData = triggerElement.getAttribute('data-payment-invoice');
+                getHandlePayment(paymentData, modalContent, modalFooter)
+                {#modalContent.innerHTML = `<p>${myResult}</p>`;#}
+
+
+            });
+        });
+    </script>
+{% endblock %}

@@ -27,18 +27,19 @@
                         <a class="nav-link dropdown-toggle" href="#!" id="accountDropdown" role="button"
                            data-bs-toggle="dropdown" aria-expanded="false">Tài khoản</a>
                         <ul class="dropdown-menu border-0 shadow bsb-zoomIn" aria-labelledby="accountDropdown">
-                            {%if current_user.is_authenticated%}
-                            <li><a class="dropdown-item" href="/info-user">Chào {{current_user.full_name}}</a></li>
+                            {% if current_user.is_authenticated %}
+                                <li><a class="dropdown-item" href="/info-user">Chào {{ current_user.full_name }}</a>
+                                </li>
 
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="/logout">Đăng xuất</a></li>
-                            {%else%}
-                            <li><a class="dropdown-item" href="/login">Đăng nhập</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="/logout">Đăng xuất</a></li>
+                            {% else %}
+                                <li><a class="dropdown-item" href="/login">Đăng nhập</a></li>
 
-                            <li><a class="dropdown-item" href="/signup">Đăng ký</a></li>
-                            {%endif%}
+                                <li><a class="dropdown-item" href="/signup">Đăng ký</a></li>
+                            {% endif %}
 
                         </ul>
                     </li>
@@ -51,8 +52,9 @@
                             <li><a class="dropdown-item" href="/user-patient">Người dùng</a></li>
                             <li><a class="dropdown-item" href="/nurse">Y tá</a></li>
                             <li><a class="dropdown-item" href="/doctor">Bác sĩ</a></li>
+                            <li><a class="dropdown-item" href="/cashier">Thu ngân</a></li>
+                            <li><a class="dropdown-item" href="/nurse_add_new_user_to_waiting_list">Đăng ký khám tại quầy</a></li>
                             <li><a class="dropdown-item" href="/admin">Quản trị viên</a></li>
-
                         </ul>
                     </li>
                 </ul>
