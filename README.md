@@ -18,7 +18,7 @@ Bước 2 : Đăng nhập tài khoản hoặc tạo mới để truy cập vào 
     - tài khoản bác sĩ :                    tên đăng nhập: bacsi , mật khẩu: 123
     - tài khoản người dùng khám bệnh :      tên đăng nhập: benhnhan , mật khẩu: 123
     - tài khoản y tá :                      tên đăng nhập: yta , mật khẩu: 123
-
+    - tài khoản thu ngân :                  tên đăng nhập: thungan , mật khẩu: 123 
     Đăng nhập đúng tài khoản sẽ tự động đi đến trang làm việc
 
 Bước 3: Để lấy thông tin người dùng hiện tại đang đăng nhập , sử dụng :
@@ -44,6 +44,7 @@ Thông tin thêm :
     Y_TA: Y tá
     QUAN_TRI_VIEN: Quản trị viên
     NGUOI_DUNG: Người dùng thông thường
+    THU_NGAN: thu ngân
 
 Các route tương ứng trong index.py:
 
@@ -51,5 +52,6 @@ Các route tương ứng trong index.py:
     /nurse: Trang cho y tá
     /admin: Trang quản trị viên
     /user-patient: Trang người dùng thông thường
+    /cashier : Trang cho thu ngan
 
 Viết hàm sử lý database trong thư mục dao/
