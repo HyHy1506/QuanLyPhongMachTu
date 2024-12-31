@@ -200,8 +200,13 @@ def generate_sample_data():
     db.session.commit()
     # Create Medicines
     medicines = [
-        Medicine(name=f"Thuốc {i}", price=randint(10000, 50000), inventory_quantity=randint(100, 500))
-        for i in range(1, 21)
+        Medicine(name=name, price=randint(10000, 50000), inventory_quantity=randint(100, 500))
+        for name in [
+            "Paracetamol", "Aspirin", "Amoxicillin", "Cephalexin", "Efferalgan",
+            "Panadol", "Ciprofloxacin", "Metronidazole", "Ibuprofen", "Tiffy",
+            "Berberin", "Cimetidine", "Oresol", "Ceftriaxone", "Cefixime",
+            "Loperamide", "Dexamethasone", "Omeprazole", "Clarithromycin", "Tramadol"
+        ]
     ]
     db.session.add_all(medicines)
     db.session.commit()
@@ -236,10 +241,25 @@ def generate_sample_data():
             # Create MedicalExaminationForm
             doctor = choice(doctors)
             medical_forms = [
-                MedicalExaminationForm(appointment_date=date, symptom=f"Triệu chứng {i}",
-                                       predicted_disease=f"Bệnh {i}", doctor_id=doctor.id,
-                                       patient_id=choice(patients).id)
-                for i in range(1, 11)
+                MedicalExaminationForm(
+                    appointment_date=date,
+                    symptom=symptom,
+                    predicted_disease=disease,
+                    doctor_id=doctor.id,
+                    patient_id=choice(patients).id
+                )
+                for symptom, disease in [
+                    ("Sốt, đau đầu, đau mỏi cơ", "Sốt xuất huyết"),
+                    ("Ho khan, sốt nhẹ, khó thở", "Viêm phổi"),
+                    ("Đau bụng, tiêu chảy, nôn mửa", "Ngộ độc thực phẩm"),
+                    ("Ho kéo dài, đau họng, sốt", "Viêm họng"),
+                    ("Đau ngực, ho có đờm hoặc máu", "Lao phổi"),
+                    ("Ngứa, nổi mẩn đỏ, sưng phù", "Dị ứng"),
+                    ("Đau đầu dữ dội, mệt mỏi, buồn nôn", "Đau nửa đầu"),
+                    ("Chảy nước mũi, nghẹt mũi, đau nhức mặt", "Viêm xoang"),
+                    ("Khó tiểu, đau khi tiểu", "Nhiễm trùng đường tiết niệu"),
+                    ("Sụt cân, mệt mỏi, khát nước nhiều", "Tiểu đường")
+                ]
             ]
             db.session.add_all(medical_forms)
             db.session.commit()
