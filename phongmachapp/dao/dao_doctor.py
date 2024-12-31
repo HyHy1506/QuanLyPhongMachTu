@@ -36,7 +36,7 @@ def get_history_patient(patient_id=None,page =None):
         MedicalExaminationForm.predicted_disease,
     ).select_from(MedicalExaminationForm) \
         .join(User, User.id == MedicalExaminationForm.patient_id) \
-        .order_by(func.date(MedicalExaminationForm.appointment_date))
+        .order_by(func.date(MedicalExaminationForm.appointment_date).desc())
     if patient_id:
         data = data.filter(MedicalExaminationForm.patient_id == patient_id)
     total = data.count()
