@@ -19,6 +19,7 @@ Bước 2 : Đăng nhập tài khoản hoặc tạo mới để truy cập vào 
     - tài khoản người dùng khám bệnh :      tên đăng nhập: benhnhan , mật khẩu: 123
     - tài khoản y tá :                      tên đăng nhập: yta , mật khẩu: 123
     - tài khoản thu ngân :                  tên đăng nhập: thungan , mật khẩu: 123 
+    - tài khoản quản trị viên :             tên đăng nhập: admin , mật khẩu: 123
     Đăng nhập đúng tài khoản sẽ tự động đi đến trang làm việc
 
 Bước 3: Để lấy thông tin người dùng hiện tại đang đăng nhập , sử dụng :

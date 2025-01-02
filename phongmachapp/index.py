@@ -1,6 +1,7 @@
 from flask import render_template, request, redirect, url_for, session, flash, jsonify
 from phongmachapp import app, login
 from phongmachapp.dao.dao_user import add_new_user, check_user_login, get_user_by_id, update_user
+from phongmachapp import admin
 import hashlib
 from phongmachapp.models import UserType, User
 from flask_login import current_user, login_user, logout_user
@@ -527,6 +528,6 @@ def common_attributes():
 
 if __name__ == '__main__':
     with app.app_context():
-        from phongmachapp import admin
+
 
         app.run(debug=True)
