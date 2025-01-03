@@ -3,7 +3,7 @@ import hashlib
 from tkinter.font import names
 from sqlalchemy import text
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, Boolean, DateTime, func, text
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, Boolean, DateTime, func, text, UniqueConstraint, CheckConstraint
 from sqlalchemy.orm import relationship
 from phongmachapp import app, db
 from flask_login import UserMixin
@@ -16,27 +16,29 @@ class UserType(str, enum.Enum):
     QUAN_TRI_VIEN = "QUAN_TRI_VIEN"
     THU_NGAN = "THU_NGAN"
 
-#
-# class Unit(enum.Enum):
-#     VIEN = "VIEN"
-#     CHAI = "CHAI"
-#     VI = "VI"
-
 
 class TimeFrame(enum.Enum):
     SANG = "SANG"
     CHIEU = "CHIEU"
     TOI = "TOI"
 
+
 class Unit(db.Model):
     __tablename__ = 'unit'
     __table_args__ = {'extend_existing': True}
-    id = Column(Integer, primary_key=True,autoincrement=True)
-    name = Column(String(100), nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(100), nullable=False, unique=True)
+
+    # Relationships
+    medicine_details = relationship('MedicalExaminationFormDetail', backref='unit', lazy=True)
+
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = (
+        CheckConstraint('year_of_birth >= 1900', name='check_valid_birth_year'),
+        {'extend_existing': True}
+    )
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(50), nullable=False, unique=True)
     password = Column(String(50), nullable=False)
@@ -45,37 +47,52 @@ class User(db.Model, UserMixin):
     year_of_birth = Column(Integer, default=2000)
     phone_number = Column(String(50), nullable=False)
     email = Column(String(100), nullable=False, unique=True)
-    address =Column(String(100),default='TP.Hồ Chí Minh')
+    address = Column(String(100), default='TP.Hồ Chí Minh')
     user_type = Column(Enum(UserType), nullable=False, default=UserType.NGUOI_DUNG)
     avatar = Column(String(255),
-                    default='https://res.cloudinary.com/df5wj9kts/image/upload/v1732882958/awhckz70evr3mmbsgf77.png')
-# Danh sach cho
+                   default='https://res.cloudinary.com/df5wj9kts/image/upload/v1732882958/awhckz70evr3mmbsgf77.png')
+
+    # Relationships
+    waiting_lists = relationship('WaitingList', backref='user', lazy=True)
+    patient_list_details = relationship('PatientListDetail', backref='patient', lazy=True)
+    medical_examinations_as_doctor = relationship('MedicalExaminationForm',
+                                                foreign_keys='MedicalExaminationForm.doctor_id',
+                                                backref='doctor', lazy=True)
+    medical_examinations_as_patient = relationship('MedicalExaminationForm',
+                                                 foreign_keys='MedicalExaminationForm.patient_id',
+                                                 backref='patient', lazy=True)
+    payments_as_cashier = relationship('PaymentInvoice', backref='cashier', lazy=True)
+
+
 class WaitingList(db.Model):
     __tablename__ = 'waitinglist'
     __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, autoincrement=True)
-    time_frame = Column(Enum(TimeFrame), default=TimeFrame.SANG,nullable=False)
+    time_frame = Column(Enum(TimeFrame), default=TimeFrame.SANG, nullable=False)
     appointment_date = Column(DateTime, default=func.now())
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
 
-# Danh sach kham benh
+
 class PatientList(db.Model):
     __tablename__ = 'patient_list'
     __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, autoincrement=True)
     created_date = Column(DateTime, default=func.now())
     appointment_date = Column(DateTime, default=func.now())
-    nurse_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    nurse_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
 
-# chi tiet danh sach kham benh
+    # Relationships
+    details = relationship('PatientListDetail', backref='patient_list', lazy=True)
+
+
 class PatientListDetail(db.Model):
     __tablename__ = 'patient_list_detail'
     __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, autoincrement=True)
-    patient_list_id = Column(Integer, ForeignKey('patient_list.id'), primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    patient_list_id = Column(Integer, ForeignKey('patient_list.id', ondelete='CASCADE'), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), primary_key=True)
 
-# Phieu kham benh
+
 class MedicalExaminationForm(db.Model):
     __tablename__ = 'medical_examination_form'
     __table_args__ = {'extend_existing': True}
@@ -83,40 +100,57 @@ class MedicalExaminationForm(db.Model):
     appointment_date = Column(DateTime, default=func.now())
     symptom = Column(String(255), nullable=True)
     predicted_disease = Column(String(255), nullable=True)
-    doctor_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    patient_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    doctor_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    patient_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
 
-#Chi tiet phieu kham benh
+    # Relationships
+    details = relationship('MedicalExaminationFormDetail', backref='examination_form', lazy=True)
+    payment = relationship('PaymentInvoice', backref='examination_form', uselist=False, lazy=True)
+
+
 class MedicalExaminationFormDetail(db.Model):
     __tablename__ = 'medical_examination_form_detail'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = (
+        CheckConstraint('quantity > 0', name='check_positive_quantity'),
+        {'extend_existing': True}
+    )
     id = Column(Integer, primary_key=True, autoincrement=True)
     quantity = Column(Integer, default=1, nullable=False)
-    unit_id = Column(Integer, ForeignKey('unit.id'), default=1)
+    unit_id = Column(Integer, ForeignKey('unit.id', ondelete='CASCADE'), default=1)
     how_to_use = Column(String(255), nullable=False)
-    medical_examination_form_id = Column(Integer, ForeignKey('medical_examination_form.id'), nullable=False)
-    medicine_id = Column(Integer, ForeignKey('medicine.id'), nullable=False)
+    medical_examination_form_id = Column(Integer, ForeignKey('medical_examination_form.id', ondelete='CASCADE'), nullable=False)
+    medicine_id = Column(Integer, ForeignKey('medicine.id', ondelete='CASCADE'), nullable=False)
 
-# Thuoc
+    # Relationships
+    medicine = relationship('Medicine', backref='examination_details', lazy=True)
+
+
 class Medicine(db.Model):
     __tablename__ = 'medicine'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = (
+        CheckConstraint('price >= 0', name='check_non_negative_price'),
+        CheckConstraint('inventory_quantity >= 0', name='check_non_negative_inventory'),
+        {'extend_existing': True}
+    )
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(255), nullable=False)
+    name = Column(String(255), nullable=False, unique=True)
     price = Column(Float, nullable=False)
     inventory_quantity = Column(Integer, default=0, nullable=False)
 
 
-# hoa don
 class PaymentInvoice(db.Model):
     __tablename__ = 'payment_invoice'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = (
+        CheckConstraint('medical_fee >= 0', name='check_non_negative_medical_fee'),
+        CheckConstraint('medicine_price >= 0', name='check_non_negative_medicine_price'),
+        {'extend_existing': True}
+    )
     id = Column(Integer, primary_key=True, autoincrement=True)
     medical_fee = Column(Float, default=0.0, nullable=False)
     medicine_price = Column(Float, default=0.0, nullable=False)
-    cashier_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    medical_examination_form_id = Column(Integer, ForeignKey('medical_examination_form.id'), nullable=False,primary_key=True)
-
+    cashier_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    medical_examination_form_id = Column(Integer, ForeignKey('medical_examination_form.id', ondelete='CASCADE'),
+                                       nullable=False, unique=True)
 
 def generate_sample_data():
 

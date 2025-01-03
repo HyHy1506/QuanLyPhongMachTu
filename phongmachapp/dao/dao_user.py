@@ -1,6 +1,11 @@
 import hashlib
 from phongmachapp.models import *
+import re
 
+def is_valid_email_format(email):
+
+    email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    return bool(re.match(email_regex, email.strip()))
 def get_user_by_id(user_id):
     return User.query.get(user_id)
 
@@ -14,6 +19,8 @@ def check_user_login(name, passwd):
 
 def check_user_exist(username,email):
     user_has_same_name = User.query.filter(User.username.__eq__(username.strip())).first()
+    if not is_valid_email_format(email):
+        return True, "Email không đúng định dạng"
     if user_has_same_name:
         return True,"Tên đăng nhập đã tồn tại"
     user_has_same_email = User.query.filter(User.email.__eq__(email.strip())).first()

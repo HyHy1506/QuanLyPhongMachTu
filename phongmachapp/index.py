@@ -273,7 +273,8 @@ def nurse():
 
     return render_template('nurse.html',
                            waiting_list=waiting_list,
-                           user_id=current_user.id)
+                           user_id=current_user.id,
+                           num_patient_per_day=app.config['NUM_PATIENT_PER_DAY'])
 
 @app.route('/user-patient', methods=['GET', 'POST'])
 def user_patient():

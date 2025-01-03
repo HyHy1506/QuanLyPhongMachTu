@@ -44,7 +44,7 @@
                 <div class="btn-group mb-3" role="group" aria-label="Button group with nested dropdown">
                     <select class="form-select" id="yta_functions" name="yta_functions">
                         <option value="oldest">Oldest date</option>
-                        <option value="lastest">Lastest day</option>
+                        <option value="lastest" selected>Lastest day</option>
                         <option value="create_exam_list">Create a medical examination list with selected</option>
                         <option value="send_notifications">Send notifications to users</option>
                         <option value="other">...</option>
@@ -172,15 +172,18 @@
         function attachCheckboxListeners() {
             const checkboxes = document.querySelectorAll('input[type="checkbox"]');
             const countSelected = document.getElementById('count_selected');
-
+            const num_patient_per_day={{ num_patient_per_day }}
             function updateSelectedCount() {
                 let selectedCount = 0;
                 checkboxes.forEach(function (checkbox) {
-                    if (checkbox.checked) {
+                    if (checkbox.checked && selectedCount<num_patient_per_day) {
                         selectedCount++;
+                    }else if(checkbox.checked && selectedCount>=num_patient_per_day){
+                        checkbox.checked=false;
+                        alert("đã đủ số lượng bệnh nhân trong ngày")
                     }
                 });
-                countSelected.textContent = 'Selected: ' + selectedCount;
+                countSelected.textContent = 'Selected: ' + selectedCount +"/{{ num_patient_per_day }}";
             }
 
             checkboxes.forEach(function (checkbox) {
@@ -191,6 +194,42 @@
         }
 
         attachCheckboxListeners();
+        document.getElementById('yta_functions').addEventListener('change', function () {
+            const selectedOption = this.value;
+
+            // Kiểm tra nếu người dùng chọn 'oldest' hoặc 'lastest'
+            if (selectedOption === 'oldest' || selectedOption === 'lastest') {
+                // Gửi yêu cầu GET đến server với query string
+                fetch(`/nurse?option=${selectedOption}`, {method: 'GET'})
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.text(); // Nhận lại HTML từ server
+                    })
+                    .then((html) => {
+                        // Tạo một div tạm thời để chứa HTML trả về
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = html;
+
+                        // Lấy phần <tbody> từ HTML trả về
+                        const newTableBody = tempDiv.querySelector('#waiting_list_table');
+
+                        // Kiểm tra xem có phần tử <tbody> chứa waiting list không
+                        if (newTableBody) {
+                            // Cập nhật nội dung của <tbody> hiện tại
+                            document.getElementById('waiting_list_table').innerHTML = newTableBody.innerHTML;
+                            attachCheckboxListeners();
+                        } else {
+                            console.error('Không tìm thấy phần waiting_list_table trong HTML trả về.');
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error fetching waiting list:', error);
+                        alert('Không thể tải danh sách chờ. Vui lòng thử lại.');
+                    });
+            }
+        });
     </script>
 
 

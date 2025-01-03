@@ -4,7 +4,7 @@ from phongmachapp.models import *
 from sqlalchemy import func
 
 
-def get_waiting_user_oldest(user_id=None):
+def get_waiting_user_oldest():
     data = db.session.query(
         func.date(WaitingList.appointment_date),
         User.full_name,
@@ -14,8 +14,7 @@ def get_waiting_user_oldest(user_id=None):
     ).select_from(WaitingList) \
         .join(User, WaitingList.user_id == User.id) \
         .order_by(func.date(WaitingList.appointment_date).asc())
-    if user_id:
-        data = data.filter(WaitingList.user_id == user_id)
+
 
     # Lấy tất cả dữ liệu
     result = data.all()
@@ -35,7 +34,7 @@ def get_waiting_user_oldest(user_id=None):
     return infowaiting
 
 
-def get_waiting_user_lastest(user_id=None):
+def get_waiting_user_lastest():
     data = db.session.query(
         func.date(WaitingList.appointment_date),
         User.full_name,
@@ -45,8 +44,6 @@ def get_waiting_user_lastest(user_id=None):
     ).select_from(WaitingList) \
         .join(User, WaitingList.user_id == User.id) \
         .order_by(func.date(WaitingList.appointment_date).desc())
-    if user_id:
-        data = data.filter(WaitingList.user_id == user_id)
 
     # Lấy tất cả dữ liệu
     result = data.all()
