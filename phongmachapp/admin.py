@@ -9,6 +9,8 @@ from markupsafe import Markup
 from wtforms_sqlalchemy.fields import QuerySelectField
 from wtforms import validators
 import json
+import hashlib
+
 import math
 from phongmachapp.models import User,Medicine,MedicalExaminationForm,MedicalExaminationFormDetail,PatientListDetail,PatientList,PaymentInvoice,Unit
 
@@ -57,6 +59,10 @@ class UserView(AuthenticateAdminView):
             f'<img src="{model.avatar}" style="width: 50px; height: 50px; border-radius: 50%;">'
         )
     }
+    def on_model_change(self, form, model, is_created):
+        if is_created:
+            model.password = str(hashlib.md5(form.password.data.encode('utf-8')).hexdigest())
+        return super().on_model_change(form, model, is_created)
 
 
 class MedicineView(AuthenticateAdminView):
