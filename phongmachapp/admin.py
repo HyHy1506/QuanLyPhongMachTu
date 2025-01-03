@@ -117,7 +117,7 @@ class MonthlyRevenueView(AuthenticateAdminBaseView):
     @expose("/",methods=["GET","POST"])
     def index(self):
         list_month=list(range(1,13))
-        list_year=list(range(2010,2025))
+        list_year=list(range(2010,2026))
         list_year.reverse()
         selected_month = 11
         selected_year = 2024
@@ -144,7 +144,7 @@ class MonthlyMedicineView(AuthenticateAdminBaseView):
     @expose("/", methods=['GET', 'POST'])
     def index(self):
         list_month = list(range(1, 13))
-        list_year = list(range(2010, 2025))
+        list_year = list(range(2010, 2026))
         list_year.reverse()
 
         selected_month = 11
